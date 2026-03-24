@@ -2,7 +2,7 @@
 
 ## Overview
 
-NineSkyLabelImg is a fork of LabelImg - a graphical image annotation tool for YOLO, PascalVOC, and CreateML formats. It's a PyQt5-based Python application.
+NineSkyLabelImg is a fork of LabelImg - a graphical image annotation tool for YOLO, PascalVOC, and CreateML formats. It's a PyQt6-based Python application.
 
 ## Build/Lint/Test Commands
 
@@ -16,8 +16,9 @@ python3 -m unittest tests.test_io.TestPascalVocRW
 python3 -m unittest tests.test_io.TestPascalVocRW.test_upper
 
 # Compile Qt resources (after modifying resources.qrc)
-pyrcc5 -o libs/resources.py resources.qrc
-make qt5
+# Note: pyrcc6 may not be available on Windows, resources.py import updated manually
+pyrcc6 -o libs/resources.py resources.qrc
+make qt6
 
 # Install and run pre-commit hooks
 pip install pre-commit
@@ -38,9 +39,9 @@ from math import sqrt
 
 import yaml
 
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction, QColor, QIcon
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
 
 from libs.ustr import ustr
 from libs.logger import logger
@@ -75,18 +76,17 @@ except Exception as e:
     logger.error("Loading setting failed: {}".format(e))
 ```
 
-### Qt-Specific Guidelines
-- Check for QT5 at module level, use `QT5 = True/False` flag
-- Handle both PyQt4 and PyQt5 for compatibility
-
-```python
-try:
-    from PyQt5.QtCore import *
-    QT5 = True
-except ImportError:
-    from PyQt4.QtCore import *
-    QT5 = False
-```
+### PyQt6 API Changes (vs PyQt5)
+- Enums are now scoped: `Qt.Vertical` → `Qt.Orientation.Vertical`
+- Cursor shapes: `Qt.ArrowCursor` → `Qt.CursorShape.ArrowCursor`
+- Mouse buttons: `Qt.LeftButton` → `Qt.MouseButton.LeftButton`
+- Focus policy: `Qt.WheelFocus` → `Qt.FocusPolicy.WheelFocus`
+- Dialog buttons: `QDialogButtonBox.Ok` → `QDialogButtonBox.StandardButton.Ok`
+- File dialog: `QFileDialog.getOpenFileName` returns tuple `(str, str)` not `(QString, QString)`
+- `Signal` → `pyqtSignal`
+- `QVariant` removed (use Python types directly)
+- `QStringListModel` in `QtCore`, not `QtWidgets`
+- `QFileDialog`, `QAction`, `QMenu` in `QtWidgets`, not `QtGui`
 
 ### File Organization
 - Main entry: `NineSkyLabelImg.py`
@@ -111,7 +111,7 @@ labelImg/
 ```
 
 ## Key Dependencies
-- PyQt5, lxml, pyyaml
+- PyQt6, lxml, pyyaml, loguru
 
 ## Notes for Agents
 - Compile resources after modifying `resources.qrc`

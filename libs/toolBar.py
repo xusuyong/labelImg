@@ -1,10 +1,5 @@
-try:
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
-    from PyQt5.QtWidgets import *
-except ImportError:
-    from PyQt4.QtCore import *
-    from PyQt4.QtGui import *
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtWidgets import QToolBar, QToolButton, QWidget, QWidgetAction
 
 
 class ToolBar(QToolBar):
@@ -15,7 +10,7 @@ class ToolBar(QToolBar):
         layout.setSpacing(0)
         layout.setContentsMargins(*m)
         self.setContentsMargins(*m)
-        self.setWindowFlags(self.windowFlags() | Qt.FramelessWindowHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.FramelessWindowHint)
 
     def addAction(self, action):
         if isinstance(action, QWidgetAction):

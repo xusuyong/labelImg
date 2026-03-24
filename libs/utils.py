@@ -1,21 +1,12 @@
 import hashlib
 import re
-import sys
 from math import sqrt
 
+from PyQt6.QtCore import QRegularExpression, QStringListModel
+from PyQt6.QtGui import QAction, QColor, QIcon, QRegularExpressionValidator
+from PyQt6.QtWidgets import QMenu, QPushButton
+
 from libs.ustr import ustr
-
-try:
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
-    from PyQt5.QtWidgets import *
-
-    QT5 = True
-except ImportError:
-    from PyQt4.QtCore import *
-    from PyQt4.QtGui import *
-
-    QT5 = False
 
 
 def new_icon(icon):
@@ -72,7 +63,7 @@ def add_actions(widget, actions):
 
 
 def label_validator():
-    return QRegExpValidator(QRegExp(r"^[^ \t].+"), None)
+    return QRegularExpressionValidator(QRegularExpression(r"^[^ \t].+"), None)
 
 
 class Struct(object):
@@ -99,12 +90,12 @@ def generate_color_by_text(text):
 
 
 def have_qstring():
-    """p3/qt5 get rid of QString wrapper as py3 has native unicode str type"""
-    return not (sys.version_info.major >= 3 or QT_VERSION_STR.startswith("5."))
+    """PyQt6 doesn't have QString, always returns False"""
+    return False
 
 
 def util_qt_strlistclass():
-    return QStringList if have_qstring() else list
+    return QStringListModel
 
 
 def natural_sort(list, key=lambda s: s):
@@ -120,12 +111,5 @@ def natural_sort(list, key=lambda s: s):
     list.sort(key=sort_key)
 
 
-# QT4 has a trimmed method, in QT5 this is called strip
-if QT5:
-
-    def trimmed(text):
-        return text.strip()
-else:
-
-    def trimmed(text):
-        return text.trimmed()
+def trimmed(text):
+    return text.strip()

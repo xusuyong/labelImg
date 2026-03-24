@@ -8,8 +8,8 @@ from libs.logger import logger
 
 def convert_qt_type(obj):
     """Convert Qt types and Enum types to YAML-serializable types"""
-    from PyQt5.QtCore import QByteArray, QPoint, QSize
-    from PyQt5.QtGui import QColor
+    from PyQt6.QtCore import QByteArray, QPoint, QSize
+    from PyQt6.QtGui import QColor
 
     if isinstance(obj, Enum):
         return {"__type__": obj.__class__.__name__, "value": obj.value}
@@ -36,8 +36,8 @@ def convert_qt_type(obj):
 
 def convert_from_yaml(obj):
     """Convert YAML-serializable types back to Qt types"""
-    from PyQt5.QtCore import QByteArray, QPoint, QSize
-    from PyQt5.QtGui import QColor
+    from PyQt6.QtCore import QByteArray, QPoint, QSize
+    from PyQt6.QtGui import QColor
 
     from libs.labelFile import LabelFileFormat
 

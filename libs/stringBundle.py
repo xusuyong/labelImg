@@ -9,18 +9,10 @@ and execute "pyrcc5 ../resources.qrc -o resources.py" in the libs directory
 import locale
 import os
 import re
-import sys
+
+from PyQt6.QtCore import QFile, QIODevice, QLocale, QStringConverter, QTextStream
 
 from libs.ustr import ustr
-
-try:
-    from PyQt5.QtCore import *
-except ImportError:
-    if sys.version_info.major >= 3:
-        import sip
-
-        sip.setapi("QVariant", 2)
-    from PyQt4.QtCore import *
 
 
 class StringBundle:
@@ -69,9 +61,9 @@ class StringBundle:
         PROP_SEPERATOR = "="
         f = QFile(path)
         if f.exists():
-            if f.open(QIODevice.ReadOnly | QFile.Text):
+            if f.open(QIODevice.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
                 text = QTextStream(f)
-                text.setCodec("UTF-8")
+                text.setEncoding(QStringConverter.Encoding.Utf8)
 
             while not text.atEnd():
                 line = ustr(text.readLine())

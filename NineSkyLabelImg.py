@@ -9,6 +9,47 @@ import sys
 import webbrowser as wb
 from functools import partial
 
+from PyQt6.QtCore import QByteArray, QFileInfo, QPoint, QPointF, QSize, Qt, QTimer
+from PyQt6.QtGui import (
+    QAction,
+    QCloseEvent,
+    QCursor,
+    QImage,
+    QImageReader,
+    QKeySequence,
+    QPixmap,
+)
+from PyQt6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDockWidget,
+    QFileDialog,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLayout,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMainWindow,
+    QMenu,
+    QMenuBar,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QSpinBox,
+    QStatusBar,
+    QTabWidget,
+    QToolBar,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    QWidgetAction,
+)
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from libs import __version__
 from libs.canvas import Canvas
@@ -47,10 +88,10 @@ class WindowMixin(object):
         toolbar = ToolBar(title)
         toolbar.setObjectName("%sToolBar" % title)
         # toolbar.setOrientation(Qt.Vertical)
-        toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         if actions:
             add_actions(toolbar, actions)
-        self.addToolBar(Qt.LeftToolBarArea, toolbar)
+        self.addToolBar(Qt.ToolBarArea.LeftToolBarArea, toolbar)
         return toolbar
 
 
@@ -130,7 +171,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.diffc_button.setChecked(False)
         self.diffc_button.stateChanged.connect(self.button_state)
         self.edit_button = QToolButton()
-        self.edit_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.edit_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
 
         # Add some of widgets to list_layout
         list_layout.addWidget(self.edit_button)
@@ -180,8 +221,8 @@ class MainWindow(QMainWindow, WindowMixin):
         scroll.setWidget(self.canvas)
         scroll.setWidgetResizable(True)
         self.scroll_bars = {
-            Qt.Vertical: scroll.verticalScrollBar(),
-            Qt.Horizontal: scroll.horizontalScrollBar(),
+            Qt.Orientation.Vertical: scroll.verticalScrollBar(),
+            Qt.Orientation.Horizontal: scroll.horizontalScrollBar(),
         }
         self.scroll_area = scroll
         self.canvas.scrollRequest.connect(self.scroll_request)
@@ -192,11 +233,13 @@ class MainWindow(QMainWindow, WindowMixin):
         self.canvas.drawingPolygon.connect(self.toggle_drawing_sensitive)
 
         self.setCentralWidget(scroll)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.dock)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.file_dock)
-        self.file_dock.setFeatures(QDockWidget.DockWidgetFloatable)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.file_dock)
+        self.file_dock.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetFloatable)
 
-        self.dock_features = QDockWidget.DockWidgetClosable | QDockWidget.DockWidgetFloatable
+        self.dock_features = (
+            QDockWidget.DockWidgetFeature.DockWidgetClosable | QDockWidget.DockWidgetFeature.DockWidgetFloatable
+        )
         self.dock.setFeatures(self.dock.features() ^ self.dock_features)
 
         # Actions
@@ -559,7 +602,7 @@ class MainWindow(QMainWindow, WindowMixin):
         # Label list context menu.
         label_menu = QMenu()
         add_actions(label_menu, (edit, delete))
-        self.label_list.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.label_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.label_list.customContextMenuRequested.connect(self.pop_label_list_menu)
 
         # Draw squares/rectangles
@@ -770,8 +813,9 @@ class MainWindow(QMainWindow, WindowMixin):
         position = QPoint(0, 0)
         saved_position = settings.get(SETTING_WIN_POSE, position)
         # Fix the multiple monitors issue
-        for i in range(QApplication.desktop().screenCount()):
-            if QApplication.desktop().availableGeometry(i).contains(saved_position):
+        screens = QApplication.screens()
+        for i, screen in enumerate(screens):
+            if screen.availableGeometry().contains(saved_position):
                 position = saved_position
                 break
         self.resize(size)
@@ -799,8 +843,7 @@ class MainWindow(QMainWindow, WindowMixin):
         Shape.difficult = self.difficult
 
         def xbool(x):
-            if isinstance(x, QVariant):
-                return x.toBool()
+            # PyQt6 doesn't have QVariant, use Python bool directly
             return bool(x)
 
         if xbool(settings.get(SETTING_ADVANCE_MODE, False)):
@@ -831,11 +874,11 @@ class MainWindow(QMainWindow, WindowMixin):
             self.open_dir_dialog(dir_path=self.file_path, silent=True)
 
     def keyReleaseEvent(self, event):
-        if event.key() == Qt.Key_Control:
+        if event.key() == Qt.Key.Key_Control:
             self.canvas.set_drawing_shape_to_square(False)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Control:
+        if event.key() == Qt.Key.Key_Control:
             # Draw rectangle if Ctrl is pressed
             self.canvas.set_drawing_shape_to_square(True)
 
@@ -1041,7 +1084,7 @@ class MainWindow(QMainWindow, WindowMixin):
             menu.addAction(action)
 
     def pop_label_list_menu(self, point):
-        self.menus.labelList.exec_(self.label_list.mapToGlobal(point))
+        self.menus.labelList.exec(self.label_list.mapToGlobal(point))
 
     def edit_label(self):
         if not self.canvas.editing():
@@ -1086,7 +1129,7 @@ class MainWindow(QMainWindow, WindowMixin):
                 shape.difficult = difficult
                 self.set_dirty()
             else:  # User probably changed item visibility
-                self.canvas.set_shape_visible(shape, item.checkState() == Qt.Checked)
+                self.canvas.set_shape_visible(shape, item.checkState() == Qt.CheckState.Checked)
         except:
             pass
 
@@ -1109,8 +1152,8 @@ class MainWindow(QMainWindow, WindowMixin):
     def add_label(self, shape):
         shape.paint_label = self.display_label_option.isChecked()
         item = HashableQListWidgetItem(shape.label)
-        item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-        item.setCheckState(Qt.Checked)
+        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+        item.setCheckState(Qt.CheckState.Checked)
         item.setBackground(generate_color_by_text(shape.label))
         self.items_to_shapes[item] = shape
         self.shapes_to_items[shape] = item
@@ -1247,11 +1290,11 @@ class MainWindow(QMainWindow, WindowMixin):
         text = self.combo_box.cb.itemText(index)
         for i in range(self.label_list.count()):
             if text == "":
-                self.label_list.item(i).setCheckState(2)
+                self.label_list.item(i).setCheckState(Qt.CheckState.Checked)
             elif text != self.label_list.item(i).text():
-                self.label_list.item(i).setCheckState(0)
+                self.label_list.item(i).setCheckState(Qt.CheckState.Unchecked)
             else:
-                self.label_list.item(i).setCheckState(2)
+                self.label_list.item(i).setCheckState(Qt.CheckState.Checked)
 
     def default_label_combo_selection_changed(self, index):
         self.default_label = self.label_hist[index]
@@ -1273,7 +1316,7 @@ class MainWindow(QMainWindow, WindowMixin):
             shape.line_color = generate_color_by_text(shape.label)
             self.set_dirty()
         else:  # User probably changed item visibility
-            self.canvas.set_shape_visible(shape, item.checkState() == Qt.Checked)
+            self.canvas.set_shape_visible(shape, item.checkState() == Qt.CheckState.Checked)
 
     # Callback functions:
     def new_shape(self):
@@ -1333,8 +1376,8 @@ class MainWindow(QMainWindow, WindowMixin):
     def zoom_request(self, delta):
         # get the current scrollbar positions
         # calculate the percentages ~ coordinates
-        h_bar = self.scroll_bars[Qt.Horizontal]
-        v_bar = self.scroll_bars[Qt.Vertical]
+        h_bar = self.scroll_bars[Qt.Orientation.Horizontal]
+        v_bar = self.scroll_bars[Qt.Orientation.Vertical]
 
         # get the current maximum, to know the difference after zooming
         h_bar_max = h_bar.maximum()
@@ -1408,7 +1451,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
     def toggle_polygons(self, value):
         for item, shape in self.items_to_shapes.items():
-            item.setCheckState(Qt.Checked if value else Qt.Unchecked)
+            item.setCheckState(Qt.CheckState.Checked if value else Qt.CheckState.Unchecked)
 
     def load_file(self, file_path=None):
         """Load the specified file, or the last opened file if None."""
@@ -1489,7 +1532,7 @@ class MainWindow(QMainWindow, WindowMixin):
                 self.label_list.setCurrentItem(self.label_list.item(self.label_list.count() - 1))
                 self.label_list.item(self.label_list.count() - 1).setSelected(True)
 
-            self.canvas.setFocus(True)
+            self.canvas.setFocus(Qt.FocusReason.OtherFocusReason)
             return True
         return False
 
@@ -1616,7 +1659,7 @@ class MainWindow(QMainWindow, WindowMixin):
                 self,
                 "%s - Save annotations to the directory" % __appname__,
                 path,
-                QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
+                QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontResolveSymlinks,
             )
         )
 
@@ -1669,7 +1712,7 @@ class MainWindow(QMainWindow, WindowMixin):
                     self,
                     "%s - Open Directory" % __appname__,
                     default_open_dir_path,
-                    QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
+                    QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontResolveSymlinks,
                 )
             )
         else:
@@ -1792,7 +1835,7 @@ class MainWindow(QMainWindow, WindowMixin):
         filename_without_extension = os.path.splitext(self.file_path)[0]
         dlg.selectFile(filename_without_extension)
         dlg.setOption(QFileDialog.DontUseNativeDialog, False)
-        if dlg.exec_():
+        if dlg.exec():
             full_file_path = ustr(dlg.selectedFiles()[0])
             if remove_ext:
                 return os.path.splitext(full_file_path)[0]  # Return file path without the extension.
@@ -1936,7 +1979,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.set_format(FORMAT_YOLO)
         t_yolo_parse_reader = YoloReader(txt_path, self.image)
         shapes = t_yolo_parse_reader.get_shapes()
-        print(shapes)
+        logger.info(f"Loaded shapes: {shapes}")
         self.load_labels(shapes)
         self.canvas.verified = t_yolo_parse_reader.verified
 
@@ -2016,7 +2059,7 @@ def main():
     """construct main app and run it"""
     logger.info("NineSkyLabelImg v{}".format(__version__))
     app, _win = get_main_app(sys.argv)
-    return app.exec_()
+    return app.exec()
 
 
 if __name__ == "__main__":

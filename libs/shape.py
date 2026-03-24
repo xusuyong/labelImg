@@ -1,15 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-
-try:
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
-except ImportError:
-    from PyQt4.QtCore import *
-    from PyQt4.QtGui import *
-
 import sys
+
+from PyQt6.QtCore import QPointF, Qt
+from PyQt6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
 
 from libs.utils import distance
 

@@ -1,10 +1,16 @@
-try:
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
-    from PyQt5.QtWidgets import *
-except ImportError:
-    from PyQt4.QtCore import *
-    from PyQt4.QtGui import *
+from PyQt6.QtCore import QPoint, QStringListModel, Qt, pyqtSignal
+from PyQt6.QtGui import QCursor, QFont
+from PyQt6.QtWidgets import (
+    QCompleter,
+    QDialog,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QPushButton,
+    QVBoxLayout,
+)
 
 from libs.utils import label_validator, new_icon, trimmed
 
@@ -26,9 +32,9 @@ class LabelDialog(QDialog):
         completer.setModel(model)
         self.edit.setCompleter(completer)
 
-        self.button_box = bb = BB(BB.Ok | BB.Cancel, Qt.Horizontal, self)
-        bb.button(BB.Ok).setIcon(new_icon("done"))
-        bb.button(BB.Cancel).setIcon(new_icon("undo"))
+        self.button_box = bb = BB(BB.StandardButton.Ok | BB.StandardButton.Cancel, Qt.Orientation.Horizontal, self)
+        bb.button(BB.StandardButton.Ok).setIcon(new_icon("done"))
+        bb.button(BB.StandardButton.Cancel).setIcon(new_icon("undo"))
         bb.accepted.connect(self.validate)
         bb.rejected.connect(self.reject)
 
@@ -61,7 +67,7 @@ class LabelDialog(QDialog):
         """
         self.edit.setText(text)
         self.edit.setSelection(0, len(text))
-        self.edit.setFocus(Qt.PopupFocusReason)
+        self.edit.setFocus(Qt.FocusReason.PopupFocusReason)
         if move:
             cursor_pos = QCursor.pos()
 
@@ -83,7 +89,7 @@ class LabelDialog(QDialog):
             if cursor_pos.y() > max_global.y():
                 cursor_pos.setY(max_global.y())
             self.move(cursor_pos)
-        return trimmed(self.edit.text()) if self.exec_() else None
+        return trimmed(self.edit.text()) if self.exec() else None
 
     def list_item_click(self, t_qlist_widget_item):
         text = trimmed(t_qlist_widget_item.text())
