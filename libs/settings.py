@@ -8,17 +8,23 @@ def convert_qt_type(obj):
     """Convert Qt types and Enum types to YAML-serializable types"""
     from PyQt5.QtCore import QSize, QPoint, QByteArray
     from PyQt5.QtGui import QColor
-    
+
     if isinstance(obj, Enum):
-        return {'__type__': obj.__class__.__name__, 'value': obj.value}
+        return {"__type__": obj.__class__.__name__, "value": obj.value}
     elif isinstance(obj, QSize):
-        return {'__type__': 'QSize', 'width': obj.width(), 'height': obj.height()}
+        return {"__type__": "QSize", "width": obj.width(), "height": obj.height()}
     elif isinstance(obj, QPoint):
-        return {'__type__': 'QPoint', 'x': obj.x(), 'y': obj.y()}
+        return {"__type__": "QPoint", "x": obj.x(), "y": obj.y()}
     elif isinstance(obj, QByteArray):
-        return {'__type__': 'QByteArray', 'data': obj.toBase64().data().decode('ascii')}
+        return {"__type__": "QByteArray", "data": obj.toBase64().data().decode("ascii")}
     elif isinstance(obj, QColor):
-        return {'__type__': 'QColor', 'red': obj.red(), 'green': obj.green(), 'blue': obj.blue(), 'alpha': obj.alpha()}
+        return {
+            "__type__": "QColor",
+            "red": obj.red(),
+            "green": obj.green(),
+            "blue": obj.blue(),
+            "alpha": obj.alpha(),
+        }
     elif isinstance(obj, (list, tuple)):
         return [convert_qt_type(item) for item in obj]
     elif isinstance(obj, dict):
@@ -31,18 +37,18 @@ def convert_from_yaml(obj):
     from PyQt5.QtCore import QSize, QPoint, QByteArray
     from PyQt5.QtGui import QColor
     from libs.labelFile import LabelFileFormat
-    
+
     if isinstance(obj, dict):
-        if obj.get('__type__') == 'LabelFileFormat':
-            return LabelFileFormat(obj['value'])
-        elif obj.get('__type__') == 'QSize':
-            return QSize(obj['width'], obj['height'])
-        elif obj.get('__type__') == 'QPoint':
-            return QPoint(obj['x'], obj['y'])
-        elif obj.get('__type__') == 'QByteArray':
-            return QByteArray.fromBase64(obj['data'].encode('ascii'))
-        elif obj.get('__type__') == 'QColor':
-            return QColor(obj['red'], obj['green'], obj['blue'], obj['alpha'])
+        if obj.get("__type__") == "LabelFileFormat":
+            return LabelFileFormat(obj["value"])
+        elif obj.get("__type__") == "QSize":
+            return QSize(obj["width"], obj["height"])
+        elif obj.get("__type__") == "QPoint":
+            return QPoint(obj["x"], obj["y"])
+        elif obj.get("__type__") == "QByteArray":
+            return QByteArray.fromBase64(obj["data"].encode("ascii"))
+        elif obj.get("__type__") == "QColor":
+            return QColor(obj["red"], obj["green"], obj["blue"], obj["alpha"])
         else:
             return {key: convert_from_yaml(val) for key, val in obj.items()}
     elif isinstance(obj, list):
@@ -54,7 +60,7 @@ class Settings(object):
     def __init__(self):
         home = os.path.expanduser("~")
         self.data = {}
-        self.path = os.path.join(home, '.NineSkyLabelImgSettings.yaml')
+        self.path = os.path.join(home, ".NineSkyLabelImgSettings.yaml")
 
     def __setitem__(self, key, value):
         self.data[key] = value
@@ -69,26 +75,31 @@ class Settings(object):
 
     def save(self):
         if self.path:
-            with open(self.path, 'w', encoding='utf-8') as f:
-                yaml.dump(convert_qt_type(self.data), f, default_flow_style=False, allow_unicode=True)
-                logger.info('Settings saved to {}'.format(self.path))
+            with open(self.path, "w", encoding="utf-8") as f:
+                yaml.dump(
+                    convert_qt_type(self.data),
+                    f,
+                    default_flow_style=False,
+                    allow_unicode=True,
+                )
+                logger.info("Settings saved to {}".format(self.path))
                 return True
         return False
 
     def load(self):
         try:
             if os.path.exists(self.path):
-                with open(self.path, 'r', encoding='utf-8') as f:
+                with open(self.path, "r", encoding="utf-8") as f:
                     self.data = convert_from_yaml(yaml.safe_load(f))
-                    logger.info('Settings loaded from {}'.format(self.path))
+                    logger.info("Settings loaded from {}".format(self.path))
                     return True
         except Exception as e:
-            logger.error('Loading setting failed: {}'.format(e))
+            logger.error("Loading setting failed: {}".format(e))
         return False
 
     def reset(self):
         if os.path.exists(self.path):
             os.remove(self.path)
-            logger.info('Remove setting yaml file {}'.format(self.path))
+            logger.info("Remove setting yaml file {}".format(self.path))
         self.data = {}
         self.path = None

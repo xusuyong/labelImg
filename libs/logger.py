@@ -5,6 +5,7 @@ from typing import Callable, Dict
 
 try:
     import termcolor
+
     HAS_TERMCOLOR = True
 except ImportError:
     HAS_TERMCOLOR = False
@@ -48,13 +49,9 @@ class ColoredFormatter(logging.Formatter):
         def colored(text, color):
             return termcolor.colored(text, color=color, attrs={"bold": True})
 
-        record.levelname2 = colored(
-            f"{record.levelname:<7}", COLORS[record.levelname]
-        )
+        record.levelname2 = colored(f"{record.levelname:<7}", COLORS[record.levelname])
         record.message2 = colored(record.getMessage(), COLORS[record.levelname])
-        record.asctime2 = termcolor.colored(
-            self.formatTime(record, self.datefmt), color="green"
-        )
+        record.asctime2 = termcolor.colored(self.formatTime(record, self.datefmt), color="green")
         record.module2 = termcolor.colored(record.module, color="cyan")
         record.funcName2 = termcolor.colored(record.funcName, color="cyan")
         record.lineno2 = termcolor.colored(str(record.lineno), color="cyan")

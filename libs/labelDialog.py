@@ -12,7 +12,6 @@ BB = QDialogButtonBox
 
 
 class LabelDialog(QDialog):
-
     def __init__(self, text="Enter object label", parent=None, list_item=None):
         super(LabelDialog, self).__init__(parent)
 
@@ -28,8 +27,8 @@ class LabelDialog(QDialog):
         self.edit.setCompleter(completer)
 
         self.button_box = bb = BB(BB.Ok | BB.Cancel, Qt.Horizontal, self)
-        bb.button(BB.Ok).setIcon(new_icon('done'))
-        bb.button(BB.Cancel).setIcon(new_icon('undo'))
+        bb.button(BB.Ok).setIcon(new_icon("done"))
+        bb.button(BB.Cancel).setIcon(new_icon("undo"))
         bb.accepted.connect(self.validate)
         bb.rejected.connect(self.reject)
 
@@ -54,7 +53,7 @@ class LabelDialog(QDialog):
     def post_process(self):
         self.edit.setText(trimmed(self.edit.text()))
 
-    def pop_up(self, text='', move=True):
+    def pop_up(self, text="", move=True):
         """
         Shows the dialog, setting the current text to `text`, and blocks the caller until the user has made a choice.
         If the user entered a label, that label is returned, otherwise (i.e. if the user cancelled the action)
