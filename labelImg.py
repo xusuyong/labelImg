@@ -483,8 +483,13 @@ class MainWindow(QMainWindow, WindowMixin):
         self.last_open_dir = ustr(settings.get(SETTING_LAST_OPEN_DIR, None))
         if self.default_save_dir is None and save_dir is not None and os.path.exists(save_dir):
             self.default_save_dir = save_dir
+        if self.default_save_dir:
             self.statusBar().showMessage('%s started. Annotation will be saved to %s' %
                                          (__appname__, self.default_save_dir))
+            self.statusBar().show()
+        else:
+            self.statusBar().showMessage('%s started. Annotation will be saved to image directory by default' %
+                                         __appname__)
             self.statusBar().show()
 
         self.restoreState(settings.get(SETTING_WIN_STATE, QByteArray()))
@@ -1344,7 +1349,6 @@ class MainWindow(QMainWindow, WindowMixin):
             target_dir_path = ustr(default_open_dir_path)
         self.last_open_dir = target_dir_path
         self.import_dir_images(target_dir_path)
-        self.default_save_dir = target_dir_path
         if self.file_path:
             self.show_bounding_box_from_annotation_file(file_path=self.file_path)
 
@@ -1382,15 +1386,6 @@ class MainWindow(QMainWindow, WindowMixin):
             self.save_file()
 
     def open_prev_image(self, _value=False):
-        # Proceeding prev image without dialog if having any label
-        if self.auto_saving.isChecked():
-            if self.default_save_dir is not None:
-                if self.dirty is True:
-                    self.save_file()
-            else:
-                self.change_save_dir_dialog()
-                return
-
         if not self.may_continue():
             return
 
@@ -1407,15 +1402,6 @@ class MainWindow(QMainWindow, WindowMixin):
                 self.load_file(filename)
 
     def open_next_image(self, _value=False):
-        # Proceeding next image without dialog if having any label
-        if self.auto_saving.isChecked():
-            if self.default_save_dir is not None:
-                if self.dirty is True:
-                    self.save_file()
-            else:
-                self.change_save_dir_dialog()
-                return
-
         if not self.may_continue():
             return
 
@@ -1463,8 +1449,7 @@ class MainWindow(QMainWindow, WindowMixin):
             image_file_name = os.path.basename(self.file_path)
             saved_file_name = os.path.splitext(image_file_name)[0]
             saved_path = os.path.join(image_file_dir, saved_file_name)
-            self._save_file(saved_path if self.label_file
-                            else self.save_file_dialog(remove_ext=False))
+            self._save_file(saved_path)
 
     def save_file_as(self, _value=False):
         assert not self.image.isNull(), "cannot save empty image"
