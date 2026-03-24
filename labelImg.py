@@ -77,7 +77,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
         # Save as Pascal voc xml
         self.default_save_dir = default_save_dir
-        self.label_file_format = settings.get(SETTING_LABEL_FILE_FORMAT, LabelFileFormat.PASCAL_VOC)
+        self.label_file_format = settings.get(SETTING_LABEL_FILE_FORMAT, LabelFileFormat.YOLO)
 
         # For loading all image under a directory
         self.m_img_list = []
@@ -243,7 +243,7 @@ class MainWindow(QMainWindow, WindowMixin):
         save_format = action(get_format_meta(self.label_file_format)[0],
                              self.change_format, 'Ctrl+Y',
                              get_format_meta(self.label_file_format)[1],
-                             get_str('changeSaveFormat'), enabled=True)
+                             get_str('changeSaveFormat'), enabled=False)
 
         save_as = action(get_str('saveAs'), self.save_file_as,
                          'Ctrl+Shift+S', 'save-as', get_str('saveAsDetail'), enabled=False)
@@ -543,6 +543,7 @@ class MainWindow(QMainWindow, WindowMixin):
     # Support Functions #
     def set_format(self, save_format):
         if save_format == FORMAT_PASCALVOC:
+            raise ValueError('Pascal VOC format is not supported anymore. Please use YOLO or CreateML format.')
             self.actions.save_format.setText(FORMAT_PASCALVOC)
             self.actions.save_format.setIcon(new_icon("format_voc"))
             self.label_file_format = LabelFileFormat.PASCAL_VOC
@@ -555,12 +556,15 @@ class MainWindow(QMainWindow, WindowMixin):
             LabelFile.suffix = TXT_EXT
 
         elif save_format == FORMAT_CREATEML:
+            raise ValueError('CreateML format is not supported anymore. Please use YOLO format.')
             self.actions.save_format.setText(FORMAT_CREATEML)
             self.actions.save_format.setIcon(new_icon("format_createml"))
             self.label_file_format = LabelFileFormat.CREATE_ML
             LabelFile.suffix = JSON_EXT
 
     def change_format(self):
+        raise ValueError('Changing label file format is not supported anymore. Please only use YOLO format.')
+    
         if self.label_file_format == LabelFileFormat.PASCAL_VOC:
             self.set_format(FORMAT_YOLO)
         elif self.label_file_format == LabelFileFormat.YOLO:
@@ -1170,35 +1174,19 @@ class MainWindow(QMainWindow, WindowMixin):
         return '[{} / {}]'.format(self.cur_img_idx + 1, self.img_count)
 
     def show_bounding_box_from_annotation_file(self, file_path):
-        if self.default_save_dir is not None:
-            basename = os.path.basename(os.path.splitext(file_path)[0])
-            xml_path = os.path.join(self.default_save_dir, basename + XML_EXT)
-            txt_path = os.path.join(self.default_save_dir, basename + TXT_EXT)
-            json_path = os.path.join(self.default_save_dir, basename + JSON_EXT)
-
-            """Annotation file priority:
-            PascalXML > YOLO
-            """
-            if os.path.isfile(xml_path):
-                self.load_pascal_xml_by_filename(xml_path)
-            elif os.path.isfile(txt_path):
-                self.load_yolo_txt_by_filename(txt_path)
-            elif os.path.isfile(json_path):
-                self.load_create_ml_json_by_filename(json_path, file_path)
-
-        else:
-            xml_path = os.path.splitext(file_path)[0] + XML_EXT
-            txt_path = os.path.splitext(file_path)[0] + TXT_EXT
-            json_path = os.path.splitext(file_path)[0] + JSON_EXT
-
-            if os.path.isfile(xml_path):
-                self.load_pascal_xml_by_filename(xml_path)
-            elif os.path.isfile(txt_path):
-                self.load_yolo_txt_by_filename(txt_path)
-            elif os.path.isfile(json_path):
-                self.load_create_ml_json_by_filename(json_path, file_path)
+        if not file_path:
+            return
             
-
+        if self.label_file_format == LabelFileFormat.YOLO:
+            if self.default_save_dir is not None:
+                txt_path = os.path.join(self.default_save_dir, os.path.basename(os.path.splitext(file_path)[0]) + TXT_EXT)
+            else:
+                txt_path = os.path.splitext(file_path)[0] + TXT_EXT
+            if os.path.isfile(txt_path):
+                self.load_yolo_txt_by_filename(txt_path)
+        else:
+            self.error_message(u'Error opening file', u"<p>Unsupported label file format: <i>%s</i>. Please select YOLO format to load the annotation file." % self.label_file_format)
+            
     def resizeEvent(self, event):
         if self.canvas and not self.image.isNull()\
            and self.zoom_mode != self.MANUAL_ZOOM:
