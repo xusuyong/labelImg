@@ -75,11 +75,3 @@ python NineSkyLabelImg.py
 3. 点击 **Create RectBox** 或按 W 开始标注
 4. 按 D 切换下一张图片（自动保存）
 5. 标注文件 `.txt` 保存在图片同目录下
-
-## 版本
-
-当前版本：2.0.0
-
-## 致谢
-
-感谢 [Tzutalin](https://github.com/tzutalin) 创建的 LabelImg 项目为本软件奠定了基础。
