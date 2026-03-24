@@ -1709,7 +1709,7 @@ def get_main_app(argv=None):
     win = MainWindow(args.image_dir,
                      args.class_file,
                      args.save_dir)
-    win.show()
+    win.showMaximized()
     return app, win
 
 
