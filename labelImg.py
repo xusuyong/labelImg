@@ -205,13 +205,13 @@ class MainWindow(QMainWindow, WindowMixin):
                       'Ctrl+Q', 'quit', get_str('quitApp'))
 
         open = action(get_str('openFile'), self.open_file,
-                      'Ctrl+O', 'open', get_str('openFileDetail'))
+                      'Ctrl+O', 'open', get_str('openFileDetail'), enabled=False)
 
         open_dir = action(get_str('openDir'), self.open_dir_dialog,
                           'Ctrl+u', 'open', get_str('openDir'))
 
         change_save_dir = action(get_str('changeSaveDir'), self.change_save_dir_dialog,
-                                 'Ctrl+r', 'open', get_str('changeSavedAnnotationDir'))
+                                 'Ctrl+r', 'open', get_str('changeSavedAnnotationDir'), enabled=False)
 
         open_annotation = action(get_str('openAnnotation'), self.open_annotation_dialog,
                                  'Ctrl+Shift+O', 'open', get_str('openAnnotationDetail'))
