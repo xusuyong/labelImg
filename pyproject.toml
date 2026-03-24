@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nineskylabelimg"
+version = "2.0.0"
+description = "A graphical image annotation tool for YOLO, PascalVOC, and CreateML formats"
+readme = "README.rst"
+license = {text = "MIT"}
+requires-python = ">=3.0"
+authors = [
+    {name = "TzuTa Lin", email = "tzu.ta.lin@gmail.com"},
+]
+keywords = ["labelTool", "development", "annotation", "deeplearning", "yolo", "pascalvoc", "createml"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "pyqt6",
+    "lxml",
+    "pyyaml",
+    "loguru",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pre-commit",
+]
+
+[project.scripts]
+nineskylabelimg = "NineSkyLabelImg:main"
+
+[project.urls]
+Homepage = "https://github.com/tzutalin/nineskylabelimg"
+
+[tool.setuptools]
+py-modules = ["NineSkyLabelImg"]
+
+[tool.setuptools.packages.find]
+include = ["libs*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.txt", "*.qrc"]
+"libs" = ["resources.py"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pre-commit]
+default_stages = ["pre-commit"]
