@@ -1,12 +1,6 @@
-import os
-import sys
 import unittest
+
 from libs.utils import (
-    Struct,
-    new_action,
-    new_icon,
-    add_actions,
-    format_shortcut,
     generate_color_by_text,
     natural_sort,
 )

@@ -84,4 +84,3 @@ python label_to_csv.py \
 ```
 
 The output file is `res.csv` by default. Afterwards, upload the csv file to the cloud storage and you can start training!
-

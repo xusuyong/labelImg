@@ -314,4 +314,3 @@ Stargazers over time
 ~~~~~~~~~~~~~~~~~~~~
 
 .. image:: https://starchart.cc/tzutalin/labelImg.svg
-

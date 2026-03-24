@@ -1,0 +1,42 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.4
+    hooks:
+      - id: ruff
+        # --select=I 表示只进行 Import 排序 (类似 isort)
+        # --fix 表示自动修复它
+        args: [ "--select=I", "--fix" ]
+      - id: ruff-format
+        # 这里负责代码格式化 (类似 black)
+        args: [ "--line-length=120" ]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0  # 建议使用较新版本
+    hooks:
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: detect-private-key
+        files: (?!.*paddle)^.*$
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-case-conflict
+      - id: check-yaml
+        exclude: "mkdocs.yml|recipe/meta.yaml"
+      - id: pretty-format-json
+        args: [--autofix]
+      - id: requirements-txt-fixer
+      # 新增：处理混合换行符，并强制统一为 CRLF
+      - id: mixed-line-ending
+        args: ["--fix=crlf"]
+
+  - repo: local
+    hooks:
+      - id: clang-format
+        name: clang-format
+        description: Format files with ClangFormat
+        entry: bash .clang_format.hook -i
+        language: system
+        files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|cuh|proto)$
+
+exclude: |
+  ^jointContribution/

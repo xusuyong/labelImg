@@ -10,4 +10,3 @@ docker run -it \
     --volume="/etc/sudoers.d:/etc/sudoers.d:ro" \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     tzutalin/py2qt4
-
