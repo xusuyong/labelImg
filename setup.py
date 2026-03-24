@@ -11,7 +11,7 @@ from setuptools import Command, find_packages, setup
 here = os.path.abspath(os.path.dirname(__file__))
 NAME = "nineskylabelimg"
 REQUIRES_PYTHON = ">=3.0.0"
-REQUIRED_DEP = ["pyqt5", "lxml", "pyyaml"]
+REQUIRED_DEP = ["pyqt5", "lxml", "pyyaml", "loguru"]
 about = {}
 
 with open(os.path.join(here, "libs", "__init__.py")) as f:
