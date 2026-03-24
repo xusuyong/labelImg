@@ -64,7 +64,7 @@ class ColoredFormatter(logging.Formatter):
 
 @singleton
 class AppLogger:
-    def __init__(self, name="LabelImg"):
+    def __init__(self, name="NineSkyLabelImg"):
         self.logger = logging.getLogger(name)
         self.logger.propagate = False
         self.logger.setLevel(logging.INFO)

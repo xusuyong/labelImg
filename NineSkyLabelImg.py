@@ -8,7 +8,7 @@ import shutil
 import sys
 import webbrowser as wb
 from functools import partial
-
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from libs.logger import logger
 from libs import __version__
 from libs.combobox import ComboBox
@@ -35,7 +35,7 @@ from libs.create_ml_io import JSON_EXT
 from libs.ustr import ustr
 from libs.hashableQListWidgetItem import HashableQListWidgetItem
 
-__appname__ = 'labelImg'
+__appname__ = 'NineSkyLabelImg'
 
 
 class WindowMixin(object):
@@ -1678,7 +1678,7 @@ def get_main_app(argv=None):
 
 def main():
     """construct main app and run it"""
-    logger.info("LabelImg v{}".format(__version__))
+    logger.info("NineSkyLabelImg v{}".format(__version__))
     app, _win = get_main_app(sys.argv)
     return app.exec_()
 

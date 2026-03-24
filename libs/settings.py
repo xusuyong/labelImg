@@ -54,7 +54,7 @@ class Settings(object):
     def __init__(self):
         home = os.path.expanduser("~")
         self.data = {}
-        self.path = os.path.join(home, '.labelImgSettings.yaml')
+        self.path = os.path.join(home, '.NineSkyLabelImgSettings.yaml')
 
     def __setitem__(self, key, value):
         self.data[key] = value
