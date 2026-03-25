@@ -2,8 +2,10 @@ from PyQt6.QtWidgets import QComboBox, QHBoxLayout, QWidget
 
 
 class ComboBox(QWidget):
-    def __init__(self, parent=None, items=[]):
-        super(ComboBox, self).__init__(parent)
+    def __init__(self, parent=None, items=None):
+        super().__init__(parent)
+        if items is None:
+            items = []
 
         layout = QHBoxLayout()
         self.cb = QComboBox()

@@ -1,22 +1,19 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.4
+    rev: v0.15.7
     hooks:
       - id: ruff
-        # --select=I 表示只进行 Import 排序 (类似 isort)
-        # --fix 表示自动修复它
-        args: [ "--select=I", "--fix" ]
+        args: ["--fix"]        # line-length 等配置自动读取 pyproject.toml
       - id: ruff-format
-        # 这里负责代码格式化 (类似 black)
-        args: [ "--line-length=120" ]
+        # 配置全部来自 pyproject.toml [tool.ruff.format]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0  # 建议使用较新版本
+    rev: v6.0.0  # 建议使用较新版本
     hooks:
       - id: check-merge-conflict
       - id: check-symlinks
       - id: detect-private-key
-        files: (?!.*paddle)^.*$
+        files: ^(?!.*paddle).*$
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: check-case-conflict

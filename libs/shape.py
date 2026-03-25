@@ -1,10 +1,8 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 import sys
 
-from PyQt6.QtCore import QPointF, Qt
-from PyQt6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
+from PyQt6.QtGui import QColor, QFont, QPainterPath, QPen
 
 from libs.utils import distance
 
@@ -16,7 +14,7 @@ DEFAULT_VERTEX_FILL_COLOR = QColor(0, 255, 0, 255)
 DEFAULT_HVERTEX_FILL_COLOR = QColor(255, 0, 0)
 
 
-class Shape(object):
+class Shape:
     P_SQUARE, P_ROUND = range(2)
 
     MOVE_VERTEX, NEAR_VERTEX = range(2)
@@ -146,7 +144,7 @@ class Shape(object):
         elif shape == self.P_ROUND:
             path.addEllipse(point, d / 2.0, d / 2.0)
         else:
-            assert False, "unsupported vertex shape"
+            raise AssertionError("unsupported vertex shape")
 
     def nearest_vertex(self, point, epsilon):
         index = None
@@ -183,7 +181,7 @@ class Shape(object):
         self._highlight_index = None
 
     def copy(self):
-        shape = Shape("%s" % self.label)
+        shape = Shape(f"{self.label}")
         shape.points = [p for p in self.points]
         shape.fill = self.fill
         shape.selected = self.selected

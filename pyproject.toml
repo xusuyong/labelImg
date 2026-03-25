@@ -8,7 +8,7 @@ version = "2.0.0"
 description = "A graphical image annotation tool for YOLO, PascalVOC, and CreateML formats"
 readme = "README.rst"
 license = {text = "MIT"}
-requires-python = ">=3.0"
+requires-python = ">=3.11"
 authors = [
     {name = "TzuTa Lin", email = "tzu.ta.lin@gmail.com"},
 ]
@@ -54,10 +54,26 @@ include = ["libs*"]
 
 [tool.ruff]
 line-length = 120
-target-version = "py310"
+target-version = "py311"
+
+[tool.ruff.lint]
+# E/F: pycodestyle + pyflakes 基础检查
+# I:   isort 导入排序
+# UP:  pyupgrade 现代化语法
+# B:   flake8-bugbear 潜在 bug
+select = ["E", "F", "I", "UP", "B"]
+# E501 行长度交给 ruff-format 管，B007 忽略未使用循环变量
+ignore = ["E501", "B007", "F403", "F405"]
+# 允许 --fix 自动处理这些「unsafe」规则
+extend-safe-fixes = ["UP031"]
+
+[tool.ruff.lint.isort]
+known-third-party = ["PyQt6", "loguru", "yaml"]
+known-first-party = ["libs"]
 
 [tool.ruff.format]
 quote-style = "double"
+indent-style = "space"
 
 [tool.pre-commit]
 default_stages = ["pre-commit"]

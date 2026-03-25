@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import argparse
 import codecs
 import os.path
@@ -12,38 +11,24 @@ from functools import partial
 from PyQt6.QtCore import QByteArray, QFileInfo, QPoint, QPointF, QSize, Qt, QTimer
 from PyQt6.QtGui import (
     QAction,
-    QCloseEvent,
     QCursor,
     QImage,
     QImageReader,
-    QKeySequence,
     QPixmap,
 )
 from PyQt6.QtWidgets import (
     QApplication,
     QCheckBox,
-    QComboBox,
     QDockWidget,
     QFileDialog,
-    QGridLayout,
     QHBoxLayout,
     QLabel,
-    QLayout,
-    QLineEdit,
     QListWidget,
     QListWidgetItem,
     QMainWindow,
     QMenu,
-    QMenuBar,
     QMessageBox,
-    QProgressBar,
-    QPushButton,
     QScrollArea,
-    QSizePolicy,
-    QSpinBox,
-    QStatusBar,
-    QTabWidget,
-    QToolBar,
     QToolButton,
     QVBoxLayout,
     QWidget,
@@ -77,7 +62,7 @@ from libs.zoomWidget import ZoomWidget
 __appname__ = "NineSkyLabelImg"
 
 
-class WindowMixin(object):
+class WindowMixin:
     def menu(self, title, actions=None):
         menu = self.menuBar().addMenu(title)
         if actions:
@@ -86,7 +71,7 @@ class WindowMixin(object):
 
     def toolbar(self, title, actions=None):
         toolbar = ToolBar(title)
-        toolbar.setObjectName("%sToolBar" % title)
+        toolbar.setObjectName(f"{title}ToolBar")
         # toolbar.setOrientation(Qt.Vertical)
         toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         if actions:
@@ -104,7 +89,7 @@ class MainWindow(QMainWindow, WindowMixin):
         default_prefdef_class_file=None,
         default_save_dir=None,
     ):
-        super(MainWindow, self).__init__()
+        super().__init__()
         self.setWindowTitle(__appname__)
 
         # Load setting in the main thread
@@ -116,7 +101,9 @@ class MainWindow(QMainWindow, WindowMixin):
 
         # Load string bundle for i18n
         self.string_bundle = StringBundle.get_bundle()
-        get_str = lambda str_id: self.string_bundle.get_string(str_id)
+
+        def get_str(str_id):
+            return self.string_bundle.get_string(str_id)
 
         # Save as Pascal voc xml
         self.default_save_dir = default_save_dir
@@ -468,8 +455,9 @@ class MainWindow(QMainWindow, WindowMixin):
         zoom = QWidgetAction(self)
         zoom.setDefaultWidget(self.zoom_widget)
         self.zoom_widget.setWhatsThis(
-            "Zoom in or out of the image. Also accessible with"
-            " %s and %s from the canvas." % (format_shortcut("Ctrl+[-+]"), format_shortcut("Ctrl+Wheel"))
+            "Zoom in or out of the image. Also accessible with {} and {} from the canvas.".format(
+                format_shortcut("Ctrl+[-+]"), format_shortcut("Ctrl+Wheel")
+            )
         )
         self.zoom_widget.setEnabled(False)
 
@@ -535,8 +523,9 @@ class MainWindow(QMainWindow, WindowMixin):
         light = QWidgetAction(self)
         light.setDefaultWidget(self.light_widget)
         self.light_widget.setWhatsThis(
-            "Brighten or darken current image. Also accessible with"
-            " %s and %s from the canvas." % (format_shortcut("Ctrl+Shift+[-+]"), format_shortcut("Ctrl+Shift+Wheel"))
+            "Brighten or darken current image. Also accessible with {} and {} from the canvas.".format(
+                format_shortcut("Ctrl+Shift+[-+]"), format_shortcut("Ctrl+Shift+Wheel")
+            )
         )
         self.light_widget.setEnabled(False)
 
@@ -785,7 +774,7 @@ class MainWindow(QMainWindow, WindowMixin):
             show_all,
         )
 
-        self.statusBar().showMessage("%s started." % __appname__)
+        self.statusBar().showMessage(f"{__appname__} started.")
         self.statusBar().show()
 
         # Application state.
@@ -825,13 +814,11 @@ class MainWindow(QMainWindow, WindowMixin):
         if self.default_save_dir is None and save_dir is not None and os.path.exists(save_dir):
             self.default_save_dir = save_dir
         if self.default_save_dir:
-            self.statusBar().showMessage(
-                "%s started. Annotation will be saved to %s" % (__appname__, self.default_save_dir)
-            )
+            self.statusBar().showMessage(f"{__appname__} started. Annotation will be saved to {self.default_save_dir}")
             self.statusBar().show()
         else:
             self.statusBar().showMessage(
-                "%s started. Annotation will be saved to image directory by default" % __appname__
+                f"{__appname__} started. Annotation will be saved to image directory by default"
             )
             self.statusBar().show()
 
@@ -1022,7 +1009,7 @@ class MainWindow(QMainWindow, WindowMixin):
                     wb.register("chrome", None, wb.BackgroundBrowser(chrome_path))
             try:
                 wb.get("chrome").open(link, new=2)
-            except:
+            except Exception:
                 wb.open(link, new=2)
         elif browser.lower() in wb._browsers:
             wb.get(browser.lower()).open(link, new=2)
@@ -1033,7 +1020,7 @@ class MainWindow(QMainWindow, WindowMixin):
     def show_info_dialog(self):
         from libs.__init__ import __version__
 
-        msg = "Name:{0} \nApp Version:{1} \n{2} ".format(__appname__, __version__, sys.version_info)
+        msg = f"Name:{__appname__} \nApp Version:{__version__} \n{sys.version_info} "
         QMessageBox.information(self, "Information", msg)
 
     def show_shortcuts_dialog(self):
@@ -1079,7 +1066,7 @@ class MainWindow(QMainWindow, WindowMixin):
         files = [f for f in self.recent_files if f != curr_file_path and exists(f)]
         for i, f in enumerate(files):
             icon = new_icon("labels")
-            action = QAction(icon, "&%d %s" % (i + 1, QFileInfo(f).fileName()), self)
+            action = QAction(icon, f"&{i + 1} {QFileInfo(f).fileName()}", self)
             action.triggered.connect(partial(self.load_recent, f))
             menu.addAction(action)
 
@@ -1121,7 +1108,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
         try:
             shape = self.items_to_shapes[item]
-        except:
+        except Exception:
             pass
         # Checked and Update
         try:
@@ -1130,7 +1117,7 @@ class MainWindow(QMainWindow, WindowMixin):
                 self.set_dirty()
             else:  # User probably changed item visibility
                 self.canvas.set_shape_visible(shape, item.checkState() == Qt.CheckState.Checked)
-        except:
+        except Exception:
             pass
 
     # React to canvas signals.
@@ -1275,10 +1262,10 @@ class MainWindow(QMainWindow, WindowMixin):
                     self.line_color.getRgb(),
                     self.fill_color.getRgb(),
                 )
-            print("Image:{0} -> Annotation:{1}".format(self.file_path, annotation_file_path))
+            print(f"Image:{self.file_path} -> Annotation:{annotation_file_path}")
             return True
         except LabelFileError as e:
-            self.error_message("Error saving label data", "<b>%s</b>" % e)
+            self.error_message("Error saving label data", f"<b>{e}</b>")
             return False
 
     def copy_selected_shape(self):
@@ -1483,9 +1470,9 @@ class MainWindow(QMainWindow, WindowMixin):
                 except LabelFileError as e:
                     self.error_message(
                         "Error opening file",
-                        ("<p><b>%s</b></p><p>Make sure <i>%s</i> is a valid label file.") % (e, unicode_file_path),
+                        (f"<p><b>{e}</b></p><p>Make sure <i>{unicode_file_path}</i> is a valid label file."),
                     )
-                    self.status("Error reading %s" % unicode_file_path)
+                    self.status(f"Error reading {unicode_file_path}")
 
                     return False
                 self.image_data = self.label_file.image_data
@@ -1506,11 +1493,11 @@ class MainWindow(QMainWindow, WindowMixin):
             if image.isNull():
                 self.error_message(
                     "Error opening file",
-                    "<p>Make sure <i>%s</i> is a valid image file." % unicode_file_path,
+                    f"<p>Make sure <i>{unicode_file_path}</i> is a valid image file.",
                 )
-                self.status("Error reading %s" % unicode_file_path)
+                self.status(f"Error reading {unicode_file_path}")
                 return False
-            self.status("Loaded %s" % os.path.basename(unicode_file_path))
+            self.status(f"Loaded {os.path.basename(unicode_file_path)}")
             self.image = image
             self.file_path = unicode_file_path
             self.canvas.load_pixmap(QPixmap.fromImage(image))
@@ -1540,7 +1527,7 @@ class MainWindow(QMainWindow, WindowMixin):
         """
         Converts image counter to string representation.
         """
-        return "[{} / {}]".format(self.cur_img_idx + 1, self.img_count)
+        return f"[{self.cur_img_idx + 1} / {self.img_count}]"
 
     def show_bounding_box_from_annotation_file(self, file_path):
         if not file_path:
@@ -1559,14 +1546,13 @@ class MainWindow(QMainWindow, WindowMixin):
         else:
             self.error_message(
                 "Error opening file",
-                "<p>Unsupported label file format: <i>%s</i>. Please select YOLO format to load the annotation file."
-                % self.label_file_format,
+                f"<p>Unsupported label file format: <i>{self.label_file_format}</i>. Please select YOLO format to load the annotation file.",
             )
 
     def resizeEvent(self, event):
         if self.canvas and not self.image.isNull() and self.zoom_mode != self.MANUAL_ZOOM:
             self.adjust_scale()
-        super(MainWindow, self).resizeEvent(event)
+        super().resizeEvent(event)
 
     def paint_canvas(self):
         assert not self.image.isNull(), "cannot paint null image"
@@ -1636,7 +1622,7 @@ class MainWindow(QMainWindow, WindowMixin):
             self.load_file(filename)
 
     def scan_all_images(self, folder_path):
-        extensions = [".%s" % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
+        extensions = [".{}".format(fmt.data().decode("ascii").lower()) for fmt in QImageReader.supportedImageFormats()]
         images = []
 
         for root, dirs, files in os.walk(folder_path):
@@ -1657,7 +1643,7 @@ class MainWindow(QMainWindow, WindowMixin):
         dir_path = ustr(
             QFileDialog.getExistingDirectory(
                 self,
-                "%s - Save annotations to the directory" % __appname__,
+                f"{__appname__} - Save annotations to the directory",
                 path,
                 QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontResolveSymlinks,
             )
@@ -1669,7 +1655,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.show_bounding_box_from_annotation_file(self.file_path)
 
         self.statusBar().showMessage(
-            "%s . Annotation will be saved to %s" % ("Change saved folder", self.default_save_dir)
+            "{} . Annotation will be saved to {}".format("Change saved folder", self.default_save_dir)
         )
         self.statusBar().show()
 
@@ -1681,16 +1667,16 @@ class MainWindow(QMainWindow, WindowMixin):
 
         path = os.path.dirname(ustr(self.file_path)) if self.file_path else "."
         if self.label_file_format == LabelFileFormat.PASCAL_VOC:
-            filters = "Open Annotation XML file (%s)" % " ".join(["*.xml"])
-            filename = ustr(QFileDialog.getOpenFileName(self, "%s - Choose a xml file" % __appname__, path, filters))
+            filters = "Open Annotation XML file ({})".format(" ".join(["*.xml"]))
+            filename = ustr(QFileDialog.getOpenFileName(self, f"{__appname__} - Choose a xml file", path, filters))
             if filename:
                 if isinstance(filename, (tuple, list)):
                     filename = filename[0]
             self.load_pascal_xml_by_filename(filename)
 
         elif self.label_file_format == LabelFileFormat.CREATE_ML:
-            filters = "Open Annotation JSON file (%s)" % " ".join(["*.json"])
-            filename = ustr(QFileDialog.getOpenFileName(self, "%s - Choose a json file" % __appname__, path, filters))
+            filters = "Open Annotation JSON file ({})".format(" ".join(["*.json"]))
+            filename = ustr(QFileDialog.getOpenFileName(self, f"{__appname__} - Choose a json file", path, filters))
             if filename:
                 if isinstance(filename, (tuple, list)):
                     filename = filename[0]
@@ -1706,11 +1692,11 @@ class MainWindow(QMainWindow, WindowMixin):
             default_open_dir_path = self.last_open_dir
         else:
             default_open_dir_path = os.path.dirname(self.file_path) if self.file_path else "."
-        if silent != True:
+        if not silent:
             target_dir_path = ustr(
                 QFileDialog.getExistingDirectory(
                     self,
-                    "%s - Open Directory" % __appname__,
+                    f"{__appname__} - Open Directory",
                     default_open_dir_path,
                     QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontResolveSymlinks,
                 )
@@ -1797,9 +1783,9 @@ class MainWindow(QMainWindow, WindowMixin):
         if not self.may_continue():
             return
         path = os.path.dirname(ustr(self.file_path)) if self.file_path else "."
-        formats = ["*.%s" % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
-        filters = "Image & Label files (%s)" % " ".join(formats + ["*%s" % LabelFile.suffix])
-        filename, _ = QFileDialog.getOpenFileName(self, "%s - Choose Image or Label file" % __appname__, path, filters)
+        formats = ["*.{}".format(fmt.data().decode("ascii").lower()) for fmt in QImageReader.supportedImageFormats()]
+        filters = "Image & Label files ({})".format(" ".join(formats + [f"*{LabelFile.suffix}"]))
+        filename, _ = QFileDialog.getOpenFileName(self, f"{__appname__} - Choose Image or Label file", path, filters)
         if filename:
             if isinstance(filename, (tuple, list)):
                 filename = filename[0]
@@ -1826,8 +1812,8 @@ class MainWindow(QMainWindow, WindowMixin):
         self._save_file(self.save_file_dialog())
 
     def save_file_dialog(self, remove_ext=True):
-        caption = "%s - Choose File" % __appname__
-        filters = "File (*%s)" % LabelFile.suffix
+        caption = f"{__appname__} - Choose File"
+        filters = f"File (*{LabelFile.suffix})"
         open_dialog_path = self.current_path()
         dlg = QFileDialog(self, caption, open_dialog_path, filters)
         dlg.setDefaultSuffix(LabelFile.suffix[1:])
@@ -1846,7 +1832,7 @@ class MainWindow(QMainWindow, WindowMixin):
     def _save_file(self, annotation_file_path):
         if annotation_file_path and self.save_labels(annotation_file_path):
             self.set_clean()
-            self.statusBar().showMessage("Saved to  %s" % annotation_file_path)
+            self.statusBar().showMessage(f"Saved to  {annotation_file_path}")
             self.statusBar().show()
 
     def close_file(self, _value=False):
@@ -1900,7 +1886,7 @@ class MainWindow(QMainWindow, WindowMixin):
         return QMessageBox.warning(self, "Attention", msg, yes | no | cancel)
 
     def error_message(self, title, message):
-        return QMessageBox.critical(self, title, "<p><b>%s</b></p>%s" % (title, message))
+        return QMessageBox.critical(self, title, f"<p><b>{title}</b></p>{message}")
 
     def current_path(self):
         return os.path.dirname(self.file_path) if self.file_path else "."
@@ -2020,7 +2006,7 @@ def read(filename, default=None):
         reader = QImageReader(filename)
         reader.setAutoTransform(True)
         return reader.read()
-    except:
+    except Exception:
         return default
 
 
@@ -2057,7 +2043,7 @@ def get_main_app(argv=None):
 
 def main():
     """construct main app and run it"""
-    logger.info("NineSkyLabelImg v{}".format(__version__))
+    logger.info(f"NineSkyLabelImg v{__version__}")
     app, _win = get_main_app(sys.argv)
     return app.exec()
 

@@ -65,7 +65,7 @@ class TestCreateMLRW(unittest.TestCase):
         writer.write()
 
         # check written json
-        with open(output_file, "r") as file:
+        with open(output_file) as file:
             input_data = file.read()
 
         import json

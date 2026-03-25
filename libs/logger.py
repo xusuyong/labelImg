@@ -1,6 +1,5 @@
 import sys
 from functools import wraps
-from typing import Callable
 
 from loguru import logger
 

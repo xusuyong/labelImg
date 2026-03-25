@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf8 -*-
 import codecs
 import os
 
@@ -32,17 +31,19 @@ class YOLOWriter:
         bnd_box["difficult"] = difficult
         self.box_list.append(bnd_box)
 
-    def bnd_box_to_yolo_line(self, box, class_list=[]):
+    def bnd_box_to_yolo_line(self, box, class_list=None):
+        if class_list is None:
+            class_list = []
         x_min = box["xmin"]
         x_max = box["xmax"]
         y_min = box["ymin"]
         y_max = box["ymax"]
 
-        x_center = float((x_min + x_max)) / 2 / self.img_size[1]
-        y_center = float((y_min + y_max)) / 2 / self.img_size[0]
+        x_center = float(x_min + x_max) / 2 / self.img_size[1]
+        y_center = float(y_min + y_max) / 2 / self.img_size[0]
 
-        w = float((x_max - x_min)) / self.img_size[1]
-        h = float((y_max - y_min)) / self.img_size[0]
+        w = float(x_max - x_min) / self.img_size[1]
+        h = float(y_max - y_min) / self.img_size[0]
 
         # PR387
         box_name = box["name"]
@@ -53,7 +54,9 @@ class YOLOWriter:
 
         return class_index, x_center, y_center, w, h
 
-    def save(self, class_list=[], target_file=None):
+    def save(self, class_list=None, target_file=None):
+        if class_list is None:
+            class_list = []
         out_file = None  # Update yolo .txt
         out_class_file = None  # Update class list .txt
 
@@ -70,7 +73,7 @@ class YOLOWriter:
         for box in self.box_list:
             class_index, x_center, y_center, w, h = self.bnd_box_to_yolo_line(box, class_list)
             # print (classIndex, x_center, y_center, w, h)
-            out_file.write("%d %.6f %.6f %.6f %.6f\n" % (class_index, x_center, y_center, w, h))
+            out_file.write(f"{class_index} {x_center:.6f} {y_center:.6f} {w:.6f} {h:.6f}\n")
 
         # print (classList)
         # print (out_class_file)
@@ -96,7 +99,7 @@ class YoloReader:
 
         # print (file_path, self.class_list_path)
 
-        classes_file = open(self.class_list_path, "r")
+        classes_file = open(self.class_list_path)
         self.classes = classes_file.read().strip("\n").split("\n")
 
         # print (self.classes)
@@ -134,7 +137,7 @@ class YoloReader:
         return label, x_min, y_min, x_max, y_max
 
     def parse_yolo_format(self):
-        bnd_box_file = open(self.file_path, "r")
+        bnd_box_file = open(self.file_path)
         for bndBox in bnd_box_file:
             class_index, x_center, y_center, w, h = bndBox.strip().split(" ")
             label, x_min, y_min, x_max, y_max = self.yolo_line_to_shape(class_index, x_center, y_center, w, h)

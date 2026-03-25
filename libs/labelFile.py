@@ -21,7 +21,7 @@ class LabelFileError(Exception):
     pass
 
 
-class LabelFile(object):
+class LabelFile:
     # It might be changed as window creates. By default, using XML ext
     # suffix = '.lif'
     suffix = XML_EXT

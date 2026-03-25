@@ -59,7 +59,7 @@ def convert_from_yaml(obj):
     return obj
 
 
-class Settings(object):
+class Settings:
     def __init__(self):
         home = os.path.expanduser("~")
         self.data = {}
@@ -85,24 +85,24 @@ class Settings(object):
                     default_flow_style=False,
                     allow_unicode=True,
                 )
-                logger.info("Settings saved to {}".format(self.path))
+                logger.info(f"Settings saved to {self.path}")
                 return True
         return False
 
     def load(self):
         try:
             if os.path.exists(self.path):
-                with open(self.path, "r", encoding="utf-8") as f:
+                with open(self.path, encoding="utf-8") as f:
                     self.data = convert_from_yaml(yaml.safe_load(f))
-                    logger.info("Settings loaded from {}".format(self.path))
+                    logger.info(f"Settings loaded from {self.path}")
                     return True
         except Exception as e:
-            logger.error("Loading setting failed: {}".format(e))
+            logger.error(f"Loading setting failed: {e}")
         return False
 
     def reset(self):
         if os.path.exists(self.path):
             os.remove(self.path)
-            logger.info("Remove setting yaml file {}".format(self.path))
+            logger.info(f"Remove setting yaml file {self.path}")
         self.data = {}
         self.path = None

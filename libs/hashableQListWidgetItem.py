@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QListWidgetItem
 
 
 class HashableQListWidgetItem(QListWidgetItem):
     def __init__(self, *args):
-        super(HashableQListWidgetItem, self).__init__(*args)
+        super().__init__(*args)
+        self._hash = hash(id(self))
 
     def __hash__(self):
-        return hash(self.text())
+        return self._hash
+
+    def __eq__(self, other):
+        return self is other

@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QSpinBox
 
 class LightWidget(QSpinBox):
     def __init__(self, title, value=50):
-        super(LightWidget, self).__init__()
+        super().__init__()
         self.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)
         self.setRange(0, 100)
         self.setSuffix(" %")
@@ -15,7 +15,7 @@ class LightWidget(QSpinBox):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def minimumSizeHint(self):
-        height = super(LightWidget, self).minimumSizeHint().height()
+        height = super().minimumSizeHint().height()
         fm = QFontMetrics(self.font())
         width = fm.horizontalAdvance(str(self.maximum()))
         return QSize(width, height)

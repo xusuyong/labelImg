@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf8 -*-
 import codecs
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, SubElement, indent
@@ -139,7 +138,7 @@ class PascalVocReader:
         self.verified = False
         try:
             self.parse_xml()
-        except:
+        except Exception:
             pass
 
     def get_shapes(self):
@@ -157,7 +156,6 @@ class PascalVocReader:
         assert self.file_path.endswith(XML_EXT), "Unsupported file format"
         # 直接用标准库解析，encoding 参数去掉（标准库从文件头自动检测）
         xml_tree = ElementTree.parse(self.file_path).getroot()
-        filename = xml_tree.find("filename").text
         try:
             verified = xml_tree.attrib["verified"]
             if verified == "yes":

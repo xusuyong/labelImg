@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 if items were added in files in the resources/strings folder,
 then execute "pyrcc5 resources.qrc -o resources.py" in the root directory
@@ -10,7 +9,7 @@ import locale
 import os
 import re
 
-from PyQt6.QtCore import QFile, QIODevice, QLocale, QStringConverter, QTextStream
+from PyQt6.QtCore import QFile, QIODevice, QStringConverter, QTextStream
 
 from libs.ustr import ustr
 
@@ -34,7 +33,7 @@ class StringBundle:
                     if locale.getdefaultlocale() and len(locale.getdefaultlocale()) > 0
                     else os.getenv("LANG")
                 )
-            except:
+            except Exception:
                 print("Invalid locale")
                 locale_str = "en"
 

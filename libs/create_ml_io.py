@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf8 -*-
 import json
 import os
 from pathlib import Path
@@ -33,7 +32,7 @@ class CreateMLWriter:
 
     def write(self):
         if os.path.isfile(self.output_file):
-            with open(self.output_file, "r") as file:
+            with open(self.output_file) as file:
                 input_data = file.read()
                 output_dict = json.loads(input_data)
         else:
@@ -109,7 +108,7 @@ class CreateMLReader:
             print("JSON decoding failed")
 
     def parse_json(self):
-        with open(self.json_path, "r") as file:
+        with open(self.json_path) as file:
             input_data = file.read()
 
         # Returns a list

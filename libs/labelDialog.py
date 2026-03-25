@@ -1,14 +1,11 @@
-from PyQt6.QtCore import QPoint, QStringListModel, Qt, pyqtSignal
-from PyQt6.QtGui import QCursor, QFont
+from PyQt6.QtCore import QPoint, QStringListModel, Qt
+from PyQt6.QtGui import QCursor
 from PyQt6.QtWidgets import (
     QCompleter,
     QDialog,
     QDialogButtonBox,
-    QHBoxLayout,
-    QLabel,
     QLineEdit,
     QListWidget,
-    QPushButton,
     QVBoxLayout,
 )
 
@@ -19,7 +16,7 @@ BB = QDialogButtonBox
 
 class LabelDialog(QDialog):
     def __init__(self, text="Enter object label", parent=None, list_item=None):
-        super(LabelDialog, self).__init__(parent)
+        super().__init__(parent)
 
         self.edit = QLineEdit()
         self.edit.setText(text)

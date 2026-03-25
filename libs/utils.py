@@ -66,7 +66,7 @@ def label_validator():
     return QRegularExpressionValidator(QRegularExpression(r"^[^ \t].+"), None)
 
 
-class Struct(object):
+class Struct:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -77,7 +77,7 @@ def distance(p):
 
 def format_shortcut(text):
     mod, key = text.split("+", 1)
-    return "<b>%s</b>+<b>%s</b>" % (mod, key)
+    return f"<b>{mod}</b>+<b>{key}</b>"
 
 
 def generate_color_by_text(text):
@@ -104,7 +104,9 @@ def natural_sort(list, key=lambda s: s):
     """
 
     def get_alphanum_key_func(key):
-        convert = lambda text: int(text) if text.isdigit() else text
+        def convert(text):
+            return int(text) if text.isdigit() else text
+
         return lambda s: [convert(c) for c in re.split("([0-9]+)", key(s))]
 
     sort_key = get_alphanum_key_func(key)

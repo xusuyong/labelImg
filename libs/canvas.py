@@ -28,7 +28,7 @@ class Canvas(QWidget):
     epsilon = 24.0
 
     def __init__(self, *args, **kwargs):
-        super(Canvas, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Initialise local state.
         self.mode = self.EDIT
         self.shapes = []
@@ -93,7 +93,7 @@ class Canvas(QWidget):
         self.repaint()
 
     def un_highlight(self, shape=None):
-        if shape == None or shape == self.h_shape:
+        if shape is None or shape == self.h_shape:
             if self.h_shape:
                 self.h_shape.highlight_clear()
             self.h_vertex = self.h_shape = None
@@ -108,7 +108,7 @@ class Canvas(QWidget):
         # Update coordinates in status bar if image is opened
         window = self.parent().window()
         if window.file_path is not None:
-            self.parent().window().label_coordinates.setText("X: %d; Y: %d" % (pos.x(), pos.y()))
+            self.parent().window().label_coordinates.setText(f"X: {pos.x()}; Y: {pos.y()}")
 
         # Polygon drawing.
         if self.drawing():
@@ -118,7 +118,7 @@ class Canvas(QWidget):
                 current_width = abs(self.current[0].x() - pos.x())
                 current_height = abs(self.current[0].y() - pos.y())
                 self.parent().window().label_coordinates.setText(
-                    "Width: %d, Height: %d / X: %d; Y: %d" % (current_width, current_height, pos.x(), pos.y())
+                    f"Width: {current_width}, Height: {current_height} / X: {pos.x()}; Y: {pos.y()}"
                 )
 
                 color = self.drawing_line_color
@@ -181,7 +181,7 @@ class Canvas(QWidget):
                 current_width = abs(point1.x() - point3.x())
                 current_height = abs(point1.y() - point3.y())
                 self.parent().window().label_coordinates.setText(
-                    "Width: %d, Height: %d / X: %d; Y: %d" % (current_width, current_height, pos.x(), pos.y())
+                    f"Width: {current_width}, Height: {current_height} / X: {pos.x()}; Y: {pos.y()}"
                 )
             elif self.selected_shape and self.prev_point:
                 self.override_cursor(CURSOR_MOVE)
@@ -195,7 +195,7 @@ class Canvas(QWidget):
                 current_width = abs(point1.x() - point3.x())
                 current_height = abs(point1.y() - point3.y())
                 self.parent().window().label_coordinates.setText(
-                    "Width: %d, Height: %d / X: %d; Y: %d" % (current_width, current_height, pos.x(), pos.y())
+                    f"Width: {current_width}, Height: {current_height} / X: {pos.x()}; Y: {pos.y()}"
                 )
             else:
                 # pan
@@ -229,7 +229,7 @@ class Canvas(QWidget):
                 if self.selected_vertex():
                     self.h_shape.highlight_clear()
                 self.h_vertex, self.h_shape = None, shape
-                self.setToolTip("Click & drag to move shape '%s'" % shape.label)
+                self.setToolTip(f"Click & drag to move shape '{shape.label}'")
                 self.setStatusTip(self.toolTip())
                 self.override_cursor(CURSOR_GRAB)
                 self.update()
@@ -240,7 +240,7 @@ class Canvas(QWidget):
                 current_width = abs(point1.x() - point3.x())
                 current_height = abs(point1.y() - point3.y())
                 self.parent().window().label_coordinates.setText(
-                    "Width: %d, Height: %d / X: %d; Y: %d" % (current_width, current_height, pos.x(), pos.y())
+                    f"Width: {current_width}, Height: {current_height} / X: {pos.x()}; Y: {pos.y()}"
                 )
                 break
         else:  # Nothing found, clear highlights, reset state.
@@ -492,7 +492,7 @@ class Canvas(QWidget):
 
     def paintEvent(self, event):
         if not self.pixmap:
-            return super(Canvas, self).paintEvent(event)
+            return super().paintEvent(event)
 
         p = self._painter
         p.begin(self)
@@ -568,7 +568,7 @@ class Canvas(QWidget):
 
     def offset_to_center(self):
         s = self.scale
-        area = super(Canvas, self).size()
+        area = super().size()
         w, h = self.pixmap.width() * s, self.pixmap.height() * s
         aw, ah = area.width(), area.height()
         x = (aw - w) / (2 * s) if aw > w else 0
@@ -608,7 +608,7 @@ class Canvas(QWidget):
     def minimumSizeHint(self):
         if self.pixmap:
             return self.scale * self.pixmap.size()
-        return super(Canvas, self).minimumSizeHint()
+        return super().minimumSizeHint()
 
     def wheelEvent(self, ev):
         delta = ev.angleDelta()
@@ -673,7 +673,7 @@ class Canvas(QWidget):
         self.repaint()
 
     def move_out_of_bound(self, step):
-        points = [p1 + p2 for p1, p2 in zip(self.selected_shape.points, [step] * 4)]
+        points = [p1 + p2 for p1, p2 in zip(self.selected_shape.points, [step] * 4, strict=False)]
         return True in map(self.out_of_pixmap, points)
 
     def set_last_label(self, text, line_color=None, fill_color=None):
