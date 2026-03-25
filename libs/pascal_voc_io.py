@@ -2,9 +2,7 @@
 # -*- coding: utf8 -*-
 import codecs
 from xml.etree import ElementTree
-from xml.etree.ElementTree import Element, SubElement
-
-from lxml import etree
+from xml.etree.ElementTree import Element, SubElement, indent
 
 from libs.constants import DEFAULT_ENCODING
 from libs.ustr import ustr
@@ -34,9 +32,9 @@ class PascalVocWriter:
         """
         Return a pretty-printed XML string for the Element.
         """
-        rough_string = ElementTree.tostring(elem, "utf8")
-        root = etree.fromstring(rough_string)
-        return etree.tostring(root, pretty_print=True, encoding=ENCODE_METHOD).replace("  ".encode(), "\t".encode())
+        # Python 3.9+ 标准库原生支持 indent
+        indent(elem, space="\t")
+        return ElementTree.tostring(elem, encoding=ENCODE_METHOD)
         # minidom does not support UTF-8
         # reparsed = minidom.parseString(rough_string)
         # return reparsed.toprettyxml(indent="\t", encoding=ENCODE_METHOD)
@@ -157,8 +155,8 @@ class PascalVocReader:
 
     def parse_xml(self):
         assert self.file_path.endswith(XML_EXT), "Unsupported file format"
-        parser = etree.XMLParser(encoding=ENCODE_METHOD)
-        xml_tree = ElementTree.parse(self.file_path, parser=parser).getroot()
+        # 直接用标准库解析，encoding 参数去掉（标准库从文件头自动检测）
+        xml_tree = ElementTree.parse(self.file_path).getroot()
         filename = xml_tree.find("filename").text
         try:
             verified = xml_tree.attrib["verified"]

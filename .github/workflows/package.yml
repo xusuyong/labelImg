@@ -12,8 +12,8 @@ jobs:
       - name: Setup Python Environment
         run: |
           pip3 install pipenv
-          pipenv install pyqt6 lxml
-          pipenv run pip install pyqt6 lxml
+          pipenv install pyqt6
+          pipenv run pip install pyqt6
       - name: Build LabelImg
         run: |
           pipenv run make qt6
@@ -36,13 +36,13 @@ jobs:
       - uses: actions/checkout@v3
       - name: Setup Python Environment
         run: |
-          pip3 install pyinstaller pyqt6 lxml
+          pip3 install pyinstaller pyqt6
       - name: Build LabelImg
         run: |
           pyrcc6 -o libs/resources.py resources.qrc
       - name: Package LabelImg
         run: |
-          pyinstaller --hidden-import=pyqt6 --hidden-import=lxml -F -n "labelImg" -c labelImg.py -p ./libs -p ./
+          pyinstaller --hidden-import=pyqt6 -F -n "labelImg" -c labelImg.py -p ./libs -p ./
       - uses: actions/upload-artifact@v3
         with:
           name: Windows artifact
@@ -53,13 +53,13 @@ jobs:
       - uses: actions/checkout@v3
       - name: Setup Python Environment
         run: |
-          pip3 install pyinstaller pyqt6 lxml
+          pip3 install pyinstaller pyqt6
       - name: Build LabelImg
         run: |
           pyrcc6 -o libs/resources.py resources.qrc
       - name: Package LabelImg
         run: |
-          pyinstaller --hidden-import=pyqt6 --hidden-import=lxml -F -n "labelImg" -c labelImg.py -p ./libs -p ./
+          pyinstaller --hidden-import=pyqt6 -F -n "labelImg" -c labelImg.py -p ./libs -p ./
       - uses: actions/upload-artifact@v3
         with:
           name: Linux artifact

@@ -111,7 +111,7 @@ labelImg/
 ```
 
 ## Key Dependencies
-- PyQt6, lxml, pyyaml, loguru
+- PyQt6, pyyaml, loguru
 
 ## Notes for Agents
 - Compile resources after modifying `resources.qrc`

@@ -26,7 +26,6 @@ classifiers = [
 
 dependencies = [
     "pyqt6",
-    "lxml",
     "pyyaml",
     "loguru",
 ]

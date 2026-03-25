@@ -42,7 +42,7 @@ NineSkyLabelImg 是一款基于 [LabelImg](https://github.com/tzutalin/labelImg)
 
 ### 依赖
 ```bash
-pip install pyqt5 lxml pyyaml
+pip install pyqt6 pyyaml
 ```
 
 ### 编译资源文件
