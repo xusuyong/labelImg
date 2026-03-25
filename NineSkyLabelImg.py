@@ -2062,6 +2062,9 @@ def get_main_app(argv=None):
     argparser.add_argument("save_dir", nargs="?")
     args = argparser.parse_args(argv[1:])
 
+    if args.save_dir is not None:
+        raise ValueError("save_dir parameter is not supported. Annotations are saved in the image directory.")
+
     args.image_dir = args.image_dir and os.path.normpath(args.image_dir)
     args.class_file = args.class_file and os.path.normpath(args.class_file)
     args.save_dir = args.save_dir and os.path.normpath(args.save_dir)
