@@ -46,8 +46,18 @@ pip install pyqt5 lxml pyyaml
 ```
 
 ### 编译资源文件
+
+- pyqt5
+
 ```bash
 pyrcc5 -o libs/resources.py resources.qrc
+```
+
+- pyqt6，在powershell执行：
+
+```powershell
+pyside6-rcc -o libs/resources.py resources.qrc
+(Get-Content libs/resources.py) -replace 'from PySide6', 'from PyQt6' | Set-Content libs/resources.py
 ```
 
 ### 运行
