@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from libs.constants import DEFAULT_ENCODING
+from libs.logger import logger
 
 JSON_EXT = ".json"
 ENCODE_METHOD = DEFAULT_ENCODING
@@ -105,7 +106,7 @@ class CreateMLReader:
         try:
             self.parse_json()
         except ValueError:
-            print("JSON decoding failed")
+            logger.error("JSON decoding failed.")
 
     def parse_json(self):
         with open(self.json_path) as file:

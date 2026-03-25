@@ -2,6 +2,7 @@ from PyQt6.QtCore import QPoint, QPointF, Qt, pyqtSignal
 from PyQt6.QtGui import QBrush, QColor, QCursor, QPainter, QPixmap
 from PyQt6.QtWidgets import QApplication, QMenu, QWidget
 
+from libs.logger import logger
 from libs.shape import Shape
 from libs.utils import distance
 
@@ -628,7 +629,7 @@ class Canvas(QWidget):
     def keyPressEvent(self, ev):
         key = ev.key()
         if key == Qt.Key.Key_Escape and self.current:
-            print("ESC press")
+            logger.info("ESC press, cancel current drawing.")
             self.current = None
             self.drawingPolygon.emit(False)
             self.update()

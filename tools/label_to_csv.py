@@ -12,6 +12,7 @@ import codecs
 import os
 
 import pandas as pd
+from loguru import logger
 
 
 def txt2csv(location, training_dir, path_prefix):
@@ -165,7 +166,7 @@ if __name__ == "__main__":
                 line = line.strip()
                 class_labels.append(line)
     else:  # Exit if errors occurred
-        print(f"File: {args['classes']} not exists")
+        logger.error(f"File: {args['classes']} not exists.")
         exit(1)
 
     # Prefix of the cloud storage
@@ -196,10 +197,8 @@ if __name__ == "__main__":
             elif args["mode"] == "xml":
                 res.extend(xml2csv(f"{dir_name}/{class_type_dir}", training_type_dir, prefix))
             else:
-                print(
-                    "Wrong argument for convert mode.\n"
-                    "'xml' for converting from xml to csv\n"
-                    "'txt' for converting from txt to csv"
+                logger.error(
+                    "Wrong argument for convert mode.\n'xml' for converting from xml to csv\n'txt' for converting from txt to csv"
                 )
                 exit(1)
 

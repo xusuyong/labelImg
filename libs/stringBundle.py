@@ -11,6 +11,7 @@ import re
 
 from PyQt6.QtCore import QFile, QIODevice, QStringConverter, QTextStream
 
+from libs.logger import logger
 from libs.ustr import ustr
 
 
@@ -34,7 +35,7 @@ class StringBundle:
                     else os.getenv("LANG")
                 )
             except Exception:
-                print("Invalid locale")
+                logger.error("Failed to get system locale.")
                 locale_str = "en"
 
         return StringBundle(cls.__create_key, locale_str)

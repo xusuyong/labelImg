@@ -161,7 +161,7 @@ class MainWindow(QMainWindow, WindowMixin):
         if self.label_hist:
             self.default_label = self.label_hist[0]
         else:
-            print("Not find:/data/predefined_classes.txt (optional)")
+            logger.warning("Not find:/data/predefined_classes.txt (optional)")
 
         # Main widgets and related state.
         self.label_dialog = LabelDialog(parent=self, list_item=self.label_hist)
@@ -1067,7 +1067,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.actions.editMode.setEnabled(not drawing)
         if not drawing and self.beginner():
             # Cancel creation.
-            print("Cancel creation.")
+            logger.info("Creation canceled.")
             self.canvas.set_editing(True)
             self.canvas.restore_cursor()
             self.actions.create.setEnabled(True)
@@ -1293,7 +1293,7 @@ class MainWindow(QMainWindow, WindowMixin):
                     self.line_color.getRgb(),
                     self.fill_color.getRgb(),
                 )
-            print(f"Image:{self.file_path} -> Annotation:{annotation_file_path}")
+            logger.info(f"Image:{self.file_path} -> Annotation:{annotation_file_path}")
             return True
         except LabelFileError as e:
             self.error_message("Error saving label data", f"<b>{e}</b>")
