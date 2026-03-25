@@ -63,7 +63,7 @@ target-version = "py311"
 # B:   flake8-bugbear 潜在 bug
 select = ["E", "F", "I", "UP", "B"]
 # E501 行长度交给 ruff-format 管，B007 忽略未使用循环变量
-ignore = ["E501", "B007", "F403", "F405"]
+ignore = ["E501", "B007"]
 # 允许 --fix 自动处理这些「unsafe」规则
 extend-safe-fixes = ["UP031"]
 

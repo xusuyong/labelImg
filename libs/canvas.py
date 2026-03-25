@@ -1,6 +1,6 @@
-from PyQt6.QtCore import *
-from PyQt6.QtGui import *
-from PyQt6.QtWidgets import *
+from PyQt6.QtCore import QPoint, QPointF, Qt, pyqtSignal
+from PyQt6.QtGui import QBrush, QColor, QCursor, QPainter, QPixmap
+from PyQt6.QtWidgets import QApplication, QMenu, QWidget
 
 from libs.shape import Shape
 from libs.utils import distance

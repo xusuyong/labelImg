@@ -8,9 +8,10 @@ import sys
 import webbrowser as wb
 from functools import partial
 
-from PyQt6.QtCore import QByteArray, QFileInfo, QPoint, QPointF, QSize, Qt, QTimer
+from PyQt6.QtCore import QByteArray, QFileInfo, QPoint, QPointF, QProcess, QSize, Qt, QTimer
 from PyQt6.QtGui import (
     QAction,
+    QColor,
     QCursor,
     QImage,
     QImageReader,
@@ -40,7 +41,26 @@ from libs import __version__
 from libs.canvas import Canvas
 from libs.colorDialog import ColorDialog
 from libs.combobox import ComboBox
-from libs.constants import *
+from libs.constants import (
+    FORMAT_CREATEML,
+    FORMAT_PASCALVOC,
+    FORMAT_YOLO,
+    SETTING_ADVANCE_MODE,
+    SETTING_AUTO_SAVE,
+    SETTING_DRAW_SQUARE,
+    SETTING_FILENAME,
+    SETTING_FILL_COLOR,
+    SETTING_LABEL_FILE_FORMAT,
+    SETTING_LAST_OPEN_DIR,
+    SETTING_LINE_COLOR,
+    SETTING_PAINT_LABEL,
+    SETTING_RECENT_FILES,
+    SETTING_SAVE_DIR,
+    SETTING_SINGLE_CLASS,
+    SETTING_WIN_POSE,
+    SETTING_WIN_SIZE,
+    SETTING_WIN_STATE,
+)
 from libs.create_ml_io import JSON_EXT, CreateMLReader
 from libs.default_label_combobox import DefaultLabelComboBox
 from libs.hashableQListWidgetItem import HashableQListWidgetItem
@@ -49,15 +69,26 @@ from libs.labelFile import LabelFile, LabelFileError, LabelFileFormat
 from libs.lightWidget import LightWidget
 from libs.logger import logger
 from libs.pascal_voc_io import XML_EXT, PascalVocReader
-from libs.resources import *
+from libs.resources import qInitResources
 from libs.settings import Settings
 from libs.shape import DEFAULT_FILL_COLOR, DEFAULT_LINE_COLOR, Shape
 from libs.stringBundle import StringBundle
 from libs.toolBar import ToolBar
 from libs.ustr import ustr
-from libs.utils import *
+from libs.utils import (
+    Struct,
+    add_actions,
+    format_shortcut,
+    generate_color_by_text,
+    have_qstring,
+    natural_sort,
+    new_action,
+    new_icon,
+)
 from libs.yolo_io import TXT_EXT, YoloReader
 from libs.zoomWidget import ZoomWidget
+
+qInitResources()
 
 __appname__ = "NineSkyLabelImg"
 
