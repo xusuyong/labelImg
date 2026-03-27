@@ -1,120 +1,182 @@
-# AGENTS.md - Developer Guidelines for NineSkyLabelImg
+# Agent Coding Guidelines for NineSkyLabelImg
 
 ## Overview
 
-NineSkyLabelImg is a fork of LabelImg - a graphical image annotation tool for YOLO, PascalVOC, and CreateML formats. It's a PyQt6-based Python application.
+NineSkyLabelImg is a graphical image annotation tool for YOLO, PascalVOC, and CreateML formats. This file contains guidelines for agents working on this codebase.
 
-## Build/Lint/Test Commands
+## Build, Lint, and Test Commands
+
+### Running Tests
 
 ```bash
 # Run all tests
 python3 -m unittest discover tests
 
-# Run a single test file, class, or method
-python3 -m unittest tests.test_io
-python3 -m unittest tests.test_io.TestPascalVocRW
-python3 -m unittest tests.test_io.TestPascalVocRW.test_upper
+# Run a specific test file
+python3 -m unittest tests.test_settings
 
-# Compile Qt resources (after modifying resources.qrc)
-# Note: pyrcc6 may not be available on Windows, resources.py import updated manually
-pyrcc6 -o libs/resources.py resources.qrc
-make qt6
+# Run a specific test class
+python3 -m unittest tests.test_settings.TestSettings
 
-# Install and run pre-commit hooks
-pip install pre-commit
+# Run a single test method
+python3 -m unittest tests.test_settings.TestSettings.test_basic
+
+# Using make
+make test
+```
+
+### Linting and Formatting
+
+```bash
+# Lint with ruff
+ruff check .
+
+# Auto-fix fixable issues
+ruff check --fix .
+
+# Format code
+ruff format .
+```
+
+### Pre-commit Hooks
+
+```bash
+# Install pre-commit hooks
 pre-commit install
-pre-commit run --all-files
+
+# Run pre-commit manually
+pre-commit run
+```
+
+### Building Resources
+
+```bash
+# Build Qt resources (required after modifying resources.qrc)
+pyrcc6 -o libs/resources.py resources.qrc
+
+# Using make
+make qt6
+```
+
+### Building Package
+
+```bash
+# Build distribution package
+python3 -m build
+
+# Or using setup.py
+python3 setup.py sdist
 ```
 
 ## Code Style Guidelines
 
-### Language Version
-- Python 3.0+ only
+### General
 
-### Imports (order: stdlib → third-party → local)
+- **Python Version**: 3.11+ (as specified in pyproject.toml)
+- **Line Length**: 120 characters max
+- **Indentation**: Spaces (4 spaces standard, follow existing code)
+- **Quotes**: Double quotes for strings
+
+### Imports
+
+- Use ruff/isort for import sorting
+- Known third-party: `PyQt6`, `loguru`, `yaml`
+- Known first-party: `libs`
+- Example order: stdlib → third-party → first-party
+
 ```python
+# Correct order
 import os
 import sys
-from math import sqrt
 
-import yaml
+from PyQt6.QtCore import QPoint, Qt
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction, QColor, QIcon
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
-
-from libs.ustr import ustr
-from libs.logger import logger
+from libs.canvas import Canvas
+from libs.settings import Settings
 ```
+
+### Ruff Lint Rules
+
+Enabled rules (from pyproject.toml):
+- `E` - pycodestyle errors
+- `F` - pyflakes errors
+- `I` - isort import sorting
+- `UP` - pyupgrade (modern Python syntax)
+- `B` - flake8-bugbear (potential bugs)
+
+Ignored rules:
+- `E501` - line length (handled by formatter)
+- `B007` - unused loop variable
 
 ### Naming Conventions
-- **Functions/variables**: snake_case (`new_icon`, `label_validator`)
-- **Classes**: PascalCase (`PascalVocReader`, `Settings`)
-- **Constants**: UPPER_SNAKE_CASE
-- **Private methods**: prefix with underscore (`_private_method`)
 
-### Type Hints & Formatting
-- Use Python 3.0+ style type hints
-- Uses **ruff** for import sorting and formatting
-- Line length: **120 characters**
-```python
-def format_shortcut(text: str) -> str:
-    mod, key = text.split("+", 1)
-    return "<b>%s</b>+<b>%s</b>" % (mod, key)
-```
+- **Functions/variables**: snake_case (e.g., `load_file`, `image_dir`)
+- **Classes**: PascalCase (e.g., `MainWindow`, `LabelDialog`)
+- **Constants**: UPPER_SNAKE_CASE (e.g., `XML_EXT`, `DEFAULT_LINE_COLOR`)
+- **Private methods**: prefix with underscore (e.g., `_beginner`)
+
+### Type Hints
+
+- Use type hints where appropriate for clarity
+- Follow Python 3.11+ typing conventions
 
 ### Error Handling
-- Use try/except blocks, catch specific exceptions when possible
-- Log errors using the logger
+
+- Use `logger` from `libs.logger` for logging errors
+- Avoid bare `except:` clauses
+- Use specific exceptions when possible
 
 ```python
+# Good
 try:
-    if os.path.exists(self.path):
-        with open(self.path, "r", encoding="utf-8") as f:
-            self.data = convert_from_yaml(yaml.safe_load(f))
-except Exception as e:
-    logger.error("Loading setting failed: {}".format(e))
+    something()
+except ValueError as e:
+    logger.error(f"Invalid value: {e}")
 ```
 
-### PyQt6 API Changes (vs PyQt5)
-- Enums are now scoped: `Qt.Vertical` → `Qt.Orientation.Vertical`
-- Cursor shapes: `Qt.ArrowCursor` → `Qt.CursorShape.ArrowCursor`
-- Mouse buttons: `Qt.LeftButton` → `Qt.MouseButton.LeftButton`
-- Focus policy: `Qt.WheelFocus` → `Qt.FocusPolicy.WheelFocus`
-- Dialog buttons: `QDialogButtonBox.Ok` → `QDialogButtonBox.StandardButton.Ok`
-- File dialog: `QFileDialog.getOpenFileName` returns tuple `(str, str)` not `(QString, QString)`
-- `Signal` → `pyqtSignal`
-- `QVariant` removed (use Python types directly)
-- `QStringListModel` in `QtCore`, not `QtWidgets`
-- `QFileDialog`, `QAction`, `QMenu` in `QtWidgets`, not `QtGui`
+### Git Commit Messages
 
-### File Organization
-- Main entry: `NineSkyLabelImg.py`
-- Core library: `libs/`
-- Tests: `tests/` (use unittest, `test_*.py`, `Test*`, `test_*`)
-- Settings: YAML at `~/.NineSkyLabelImgSettings.yaml`
-
-### Common Patterns
-- Use `os.path.join()` and `os.path.abspath()`
-- Use `encoding="utf-8"` when opening files
+- Use clear, concise commit messages
+- Prefix with scope if applicable (e.g., "fix:", "feat:", "refactor:")
 
 ## Project Structure
 
 ```
-labelImg/
-├── NineSkyLabelImg.py       # Main entry point
-├── libs/                    # Core library (canvas.py, settings.py, utils.py, etc.)
-├── tests/                  # Unit tests (test_*.py)
-├── resources.qrc           # Qt resources
-├── setup.py                # Package setup
-└── Makefile               # Build automation
+NineSkyLabelImg/
+├── NineSkyLabelImg.py    # Main application entry
+├── libs/                  # Core library modules
+│   ├── canvas.py
+│   ├── settings.py
+│   ├── labelFile.py
+│   └── ...
+├── resources/             # Qt resources
+│   └── resources.qrc
+├── tests/                 # Unit tests
+└── data/                  # Default classes file
+    └── predefined_classes.txt
 ```
 
-## Key Dependencies
-- PyQt6, pyyaml, loguru
+## Key Patterns
 
-## Notes for Agents
-- Compile resources after modifying `resources.qrc`
-- Run tests with `python3 -m unittest discover tests`
-- Project targets YOLO format by default (supports PascalVOC and CreateML)
-- Settings are YAML-based (not .pkl)
+### MainWindow Initialization
+
+The main window accepts two optional arguments:
+- `image_dir`: Path to images directory
+- `class_file`: Path to class definitions file
+
+Both should be validated before passing to MainWindow (as added in the codebase).
+
+### Label File Formats
+
+- YOLO format: `.txt` files
+- PascalVOC: `.xml` files
+- CreateML: `.json` files
+
+Current default is YOLO format.
+
+## Testing Guidelines
+
+- Tests are located in `tests/` directory
+- Use `unittest` framework
+- Each test file should have a corresponding test class
+- Run single test for quick verification during development

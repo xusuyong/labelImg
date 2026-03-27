@@ -116,9 +116,9 @@ class MainWindow(QMainWindow, WindowMixin):
 
     def __init__(
         self,
-        default_filename=None,
-        default_prefdef_class_file=None,
-        default_save_dir=None,
+        image_dir=None,
+        class_file=None,
+        # default_save_dir=None,
     ):
         super().__init__()
         self.setWindowTitle(__appname__)
@@ -136,8 +136,8 @@ class MainWindow(QMainWindow, WindowMixin):
         def get_str(str_id):
             return self.string_bundle.get_string(str_id)
 
-        # Save as Pascal voc xml
-        self.default_save_dir = default_save_dir
+        # Save as YOLO
+        self.default_save_dir = image_dir
         self.label_file_format = settings.get(SETTING_LABEL_FILE_FORMAT, LabelFileFormat.YOLO)
 
         # For loading all image under a directory
@@ -156,7 +156,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.screencast = "https://youtu.be/p0nR2YsCY_U"
 
         # Load predefined classes to the list
-        self.load_predefined_classes(default_prefdef_class_file)
+        self.load_predefined_classes(class_file)
 
         if self.label_hist:
             self.default_label = self.label_hist[0]
@@ -810,7 +810,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
         # Application state.
         self.image = QImage()
-        self.file_path = ustr(default_filename)
+        self.file_path = ustr(image_dir)
         self.last_open_dir = None
         self.recent_files = []
         self.max_recent = 7
@@ -2059,18 +2059,20 @@ def get_main_app(argv=None):
         default=os.path.join(os.path.dirname(__file__), "data", "predefined_classes.txt"),
         nargs="?",
     )
-    argparser.add_argument("save_dir", nargs="?")
     args = argparser.parse_args(argv[1:])
-
-    if args.save_dir is not None:
-        raise ValueError("save_dir parameter is not supported. Annotations are saved in the image directory.")
 
     args.image_dir = args.image_dir and os.path.normpath(args.image_dir)
     args.class_file = args.class_file and os.path.normpath(args.class_file)
-    args.save_dir = args.save_dir and os.path.normpath(args.save_dir)
 
-    # Usage : labelImg.py image classFile saveDir
-    win = MainWindow(args.image_dir, args.class_file, args.save_dir)
+    if args.image_dir and not os.path.exists(args.image_dir):
+        logger.error(f"Image directory does not exist: {args.image_dir}")
+        sys.exit(1)
+    if args.class_file and not os.path.exists(args.class_file):
+        logger.error(f"Class file does not exist: {args.class_file}")
+        sys.exit(1)
+
+    # Usage : NineSkyLabelImg.py image_dir classFile
+    win = MainWindow(args.image_dir, args.class_file)
     win.showMaximized()
     return app, win
 
