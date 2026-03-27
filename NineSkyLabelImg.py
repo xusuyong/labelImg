@@ -1990,9 +1990,8 @@ class MainWindow(QMainWindow, WindowMixin):
     def load_yolo_txt_by_filename(self, txt_path):
         if self.file_path is None:
             return
-        if os.path.isfile(txt_path) is False:
+        if not os.path.isfile(txt_path):
             return
-
         self.set_format(FORMAT_YOLO)
         t_yolo_parse_reader = YoloReader(txt_path, self.image)
         shapes = t_yolo_parse_reader.get_shapes()
@@ -2042,16 +2041,12 @@ def read(filename, default=None):
 
 
 def get_main_app(argv=None):
-    """
-    Standard boilerplate Qt application code.
-    Do everything but app.exec_() -- so that we can test the application in one thread
-    """
-    if not argv:
+    if argv is None:
         argv = []
     app = QApplication(argv)
     app.setApplicationName(__appname__)
     app.setWindowIcon(new_icon("app"))
-    # Tzutalin 201705+: Accept extra agruments to change predefined class file
+
     argparser = argparse.ArgumentParser()
     argparser.add_argument("image_dir", nargs="?")
     argparser.add_argument(
@@ -2061,26 +2056,44 @@ def get_main_app(argv=None):
     )
     args = argparser.parse_args(argv[1:])
 
-    args.image_dir = args.image_dir and os.path.normpath(args.image_dir)
-    args.class_file = args.class_file and os.path.normpath(args.class_file)
-
     if args.image_dir and not os.path.exists(args.image_dir):
-        logger.error(f"Image directory does not exist: {args.image_dir}")
-        sys.exit(1)
+        raise FileNotFoundError(f"Image directory does not exist: {args.image_dir}")
     if args.class_file and not os.path.exists(args.class_file):
-        logger.error(f"Class file does not exist: {args.class_file}")
-        sys.exit(1)
+        raise FileNotFoundError(f"Class file does not exist: {args.class_file}")
 
-    # Usage : NineSkyLabelImg.py image_dir classFile
-    win = MainWindow(args.image_dir, args.class_file)
+    target_class_file = None
+    if args.image_dir:
+        target_class_file = os.path.join(args.image_dir, "classes.txt")
+        if args.class_file and os.path.abspath(args.class_file) != os.path.abspath(target_class_file):
+            if os.path.exists(target_class_file):
+                with open(args.class_file, encoding="utf-8") as f1:
+                    new_content = f1.read()
+                with open(target_class_file, encoding="utf-8") as f2:
+                    old_content = f2.read()
+                if new_content == old_content:
+                    pass  # 内容相同，无需操作
+                else:
+                    backup_file = target_class_file + ".bak"
+                    shutil.copy(target_class_file, backup_file)
+                    logger.info(f"Backup existing class file to {backup_file}")
+                    shutil.copy(args.class_file, target_class_file)
+            else:
+                shutil.copy(args.class_file, target_class_file)
+    elif args.class_file:
+        target_class_file = args.class_file
+
+    win = MainWindow(args.image_dir, target_class_file)
     win.showMaximized()
     return app, win
 
 
 def main():
-    """construct main app and run it"""
     logger.info(f"NineSkyLabelImg v{__version__}")
-    app, _win = get_main_app(sys.argv)
+    try:
+        app, _win = get_main_app(sys.argv)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
     return app.exec()
 
 

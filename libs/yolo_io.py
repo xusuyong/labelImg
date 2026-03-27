@@ -99,9 +99,8 @@ class YoloReader:
 
         # print (file_path, self.class_list_path)
 
-        classes_file = open(self.class_list_path)
-        self.classes = classes_file.read().strip("\n").split("\n")
-
+        with open(self.class_list_path, encoding=ENCODE_METHOD) as classes_file:
+            self.classes = classes_file.read().strip("\n").split("\n")
         # print (self.classes)
 
         img_size = [image.height(), image.width(), 1 if image.isGrayscale() else 3]
@@ -137,10 +136,10 @@ class YoloReader:
         return label, x_min, y_min, x_max, y_max
 
     def parse_yolo_format(self):
-        bnd_box_file = open(self.file_path)
-        for bndBox in bnd_box_file:
-            class_index, x_center, y_center, w, h = bndBox.strip().split(" ")
-            label, x_min, y_min, x_max, y_max = self.yolo_line_to_shape(class_index, x_center, y_center, w, h)
+        with open(self.file_path, encoding=ENCODE_METHOD) as bnd_box_file:
+            for bndBox in bnd_box_file:
+                class_index, x_center, y_center, w, h = bndBox.strip().split(" ")
+                label, x_min, y_min, x_max, y_max = self.yolo_line_to_shape(class_index, x_center, y_center, w, h)
 
-            # Caveat: difficult flag is discarded when saved as yolo format.
-            self.add_shape(label, x_min, y_min, x_max, y_max, False)
+                # Caveat: difficult flag is discarded when saved as yolo format.
+                self.add_shape(label, x_min, y_min, x_max, y_max, False)
