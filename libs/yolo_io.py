@@ -121,7 +121,13 @@ class YoloReader:
         self.shapes.append((label, points, None, None, difficult))
 
     def yolo_line_to_shape(self, class_index, x_center, y_center, w, h):
-        label = self.classes[int(class_index)]
+        idx = int(class_index)
+        if idx < len(self.classes):
+            label = self.classes[idx]
+        else:
+            # 用占位符，调用方可以检查 self.out_of_range_indices
+            label = f"__unknown_class_{idx}__"
+            self.out_of_range_indices.add(idx)
 
         x_min = max(float(x_center) - float(w) / 2, 0)
         x_max = min(float(x_center) + float(w) / 2, 1)
@@ -136,6 +142,7 @@ class YoloReader:
         return label, x_min, y_min, x_max, y_max
 
     def parse_yolo_format(self):
+        self.out_of_range_indices = set()  # 收集所有越界的index
         with open(self.file_path, encoding=ENCODE_METHOD) as bnd_box_file:
             for bndBox in bnd_box_file:
                 class_index, x_center, y_center, w, h = bndBox.strip().split(" ")

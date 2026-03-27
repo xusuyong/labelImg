@@ -1994,10 +1994,54 @@ class MainWindow(QMainWindow, WindowMixin):
             return
         self.set_format(FORMAT_YOLO)
         t_yolo_parse_reader = YoloReader(txt_path, self.image)
+
+        # 检查越界，用户可能选择取消加载
+        if t_yolo_parse_reader.out_of_range_indices:
+            aborted = self._handle_out_of_range(t_yolo_parse_reader, txt_path)
+            if aborted:
+                return
+
         shapes = t_yolo_parse_reader.get_shapes()
         logger.info(f"Loaded shapes: {shapes}")
         self.load_labels(shapes)
         self.canvas.verified = t_yolo_parse_reader.verified
+
+    def _handle_out_of_range(self, reader, txt_path):
+        """
+        处理 YOLO 标注中类别索引越界的情况。
+        返回 True 表示用户选择取消加载，调用方应直接 return。
+        """
+        if not reader.out_of_range_indices:
+            return False
+
+        indices_str = ", ".join(str(i) for i in sorted(reader.out_of_range_indices))
+        n = len(reader.classes)
+
+        box = QMessageBox(self)
+        box.setWindowTitle("类别索引越界")
+        box.setText(
+            f"<b>{os.path.basename(txt_path)}</b> 包含越界类别索引：{indices_str}<br>"
+            f"classes.txt 只有 {n} 个类别（索引 0~{n - 1}）。<br><br>"
+            f"请选择处理方式："
+        )
+        box.setIcon(QMessageBox.Icon.Warning)
+
+        btn_keep = box.addButton("保留占位符继续", QMessageBox.ButtonRole.AcceptRole)
+        btn_discard = box.addButton("丢弃越界标注", QMessageBox.ButtonRole.DestructiveRole)
+        btn_abort = box.addButton("取消加载", QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+
+        clicked = box.clickedButton()
+        if clicked == btn_discard:
+            reader.shapes = [s for s in reader.shapes if not s[0].startswith("__unknown_class_")]
+            return False
+        elif clicked == btn_abort:
+            reader.shapes = []
+            return True  # 通知调用方中止
+        elif clicked == btn_keep:  # btn_keep
+            return False
+        else:
+            return False
 
     def load_create_ml_json_by_filename(self, json_path, file_path):
         if self.file_path is None:
